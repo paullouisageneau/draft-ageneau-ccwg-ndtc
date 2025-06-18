@@ -1,17 +1,9 @@
 ---
-###
-# Internet-Draft Markdown Template
-#
-# This template uses kramdown-rfc: https://github.com/cabo/kramdown-rfc
-# You can replace the entire file if you prefer a different format.
-# Change the file extension to match the format (.xml for XML, etc...)
-#
-###
 title: "Network Delivery Time Control"
 abbrev: "NDTC"
 category: info
 
-docname: draft-todo-yourname-protocol-latest
+docname: draft-ageneau-ccwg-ndtc-latest
 submissiontype: IETF  # also: "independent", "editorial", "IAB", or "IRTF"
 number:
 date:
@@ -33,9 +25,9 @@ venue:
 
 author:
  -
-    fullname: Your Name Here
+    fullname: "Paul-Louis Ageneau"
     organization: Your Organization Here
-    email: your.email@example.com
+    email: "paul-louis@ageneau.org"
 
 normative:
 
