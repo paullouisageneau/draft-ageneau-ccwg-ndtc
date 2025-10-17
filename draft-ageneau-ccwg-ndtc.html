@@ -5,29 +5,38 @@
 <meta content="Common,Latin" name="scripts">
 <meta content="initial-scale=1.0" name="viewport">
 <title>Network Delivery Time Control</title>
-<meta content="Your Name Here" name="author">
+<meta content="Paul-Louis Ageneau" name="author">
+<meta content="Grenville Armitage" name="author">
+<meta content="Scott Danahy" name="author">
 <meta content="
-       TODO Abstract 
+       This document describes Network Delivery Time Control (NDTC), a rate
+adaptation algorithm for real-time video streaming suited for
+interactive applications like cloud gaming. NDTC leverages the Frame
+Dithering Available Capacity Estimation (FDACE) heuristic, which
+estimates available path capacity without inducing congestion.
+The algorithm dynamically adjusts frame sizes and transmission
+times to ensure timely delivery, while also responding to
+conventional congestion signals. 
     " name="description">
-<meta content="xml2rfc 3.29.0" name="generator">
-<meta content="next generation" name="keyword">
-<meta content="unicorn" name="keyword">
-<meta content="sparkling distributed ledger" name="keyword">
-<meta content="draft-todo-yourname-protocol-latest" name="ietf.draft">
+<meta content="xml2rfc 3.30.2" name="generator">
+<meta content="rate adaptation" name="keyword">
+<meta content="real-time" name="keyword">
+<meta content="low-latency video" name="keyword">
+<meta content="draft-ageneau-ccwg-ndtc-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.29.0
+  xml2rfc 3.30.2
     Python 3.12.11
     ConfigArgParse 1.7
     google-i18n-address 3.1.1
     intervaltree 3.1.0
     Jinja2 3.1.6
     lxml 5.3.1
-    platformdirs 4.3.8
+    platformdirs 4.4.0
     pycountry 24.6.1
     PyYAML 6.0.2
-    requests 2.32.4
+    requests 2.32.5
     setuptools 80.9.0
-    wcwidth 0.2.13
+    wcwidth 0.2.14
 -->
 <link href="draft-ageneau-ccwg-ndtc.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
@@ -1046,11 +1055,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">NDTC</td>
-<td class="right">June 2025</td>
+<td class="right">October 2025</td>
 </tr></thead>
 <tfoot><tr>
-<td class="left">Here</td>
-<td class="center">Expires 20 December 2025</td>
+<td class="left">Ageneau, et al.</td>
+<td class="center">Expires 20 April 2026</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1058,22 +1067,30 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <div id="internal-metadata" class="document-information">
 <dl id="identifiers">
 <dt class="label-workgroup">Workgroup:</dt>
-<dd class="workgroup">WG Working Group</dd>
+<dd class="workgroup">Congestion Control Working Group</dd>
 <dt class="label-internet-draft">Internet-Draft:</dt>
-<dd class="internet-draft">draft-todo-yourname-protocol-latest</dd>
+<dd class="internet-draft">draft-ageneau-ccwg-ndtc-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2025-06-18" class="published">18 June 2025</time>
+<time datetime="2025-10-17" class="published">17 October 2025</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2025-12-20">20 December 2025</time></dd>
-<dt class="label-authors">Author:</dt>
+<dd class="expires"><time datetime="2026-04-20">20 April 2026</time></dd>
+<dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
-      <div class="author-name">Y. N. Here</div>
-<div class="org">Your Organization Here</div>
+      <div class="author-name">P. Ageneau</div>
+<div class="org">Netflix</div>
+</div>
+<div class="author">
+      <div class="author-name">G. Armitage</div>
+<div class="org">Netflix</div>
+</div>
+<div class="author">
+      <div class="author-name">S. Danahy</div>
+<div class="org">Netflix</div>
 </div>
 </dd>
 </dl>
@@ -1081,7 +1098,14 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <h1 id="title">Network Delivery Time Control</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
-<p id="section-abstract-1">TODO Abstract<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+<p id="section-abstract-1">This document describes Network Delivery Time Control (NDTC), a rate
+adaptation algorithm for real-time video streaming suited for
+interactive applications like cloud gaming. NDTC leverages the Frame
+Dithering Available Capacity Estimation (FDACE) heuristic, which
+estimates available path capacity without inducing congestion.
+The algorithm dynamically adjusts frame sizes and transmission
+times to ensure timely delivery, while also responding to
+conventional congestion signals.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-about-this-document">
@@ -1089,14 +1113,15 @@ svg :is([fill="white"], [fill^="#fff"]) {
       </h2>
 <p id="section-note.1-1">This note is to be removed before publishing as an RFC.<a href="#section-note.1-1" class="pilcrow">¶</a></p>
 <p id="section-note.1-2">
-        The latest revision of this draft can be found at <span><a href="https://example.com/LATEST">https://example.com/LATEST</a></span>.
-        Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-todo-yourname-protocol/">https://datatracker.ietf.org/doc/draft-todo-yourname-protocol/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
+        The latest revision of this draft can be found at <span><a href="https://paullouisageneau.github.io/draft-ndtc/draft-ageneau-ccwg-ndtc.html">https://paullouisageneau.github.io/draft-ndtc/draft-ageneau-ccwg-ndtc.html</a></span>.
+        Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-ageneau-ccwg-ndtc/">https://datatracker.ietf.org/doc/draft-ageneau-ccwg-ndtc/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
 <p id="section-note.1-3">
         Discussion of this document takes place on the
-        WG Working Group mailing list (<span><a href="mailto:WG@example.com">mailto:WG@example.com</a></span>),
-        which is archived at <span><a href="https://example.com/WG">https://example.com/WG</a></span>.<a href="#section-note.1-3" class="pilcrow">¶</a></p>
+        Congestion Control Working Group Working Group mailing list (<span><a href="mailto:ccwg@ietf.org">mailto:ccwg@ietf.org</a></span>),
+        which is archived at <span><a href="https://mailarchive.ietf.org/arch/browse/ccwg/">https://mailarchive.ietf.org/arch/browse/ccwg/</a></span>.
+        Subscribe at <span><a href="https://www.ietf.org/mailman/listinfo/ccwg/">https://www.ietf.org/mailman/listinfo/ccwg/</a></span>.<a href="#section-note.1-3" class="pilcrow">¶</a></p>
 <p id="section-note.1-4">Source for this draft and an issue tracker can be found at
-        <span><a href="https://github.com/USER/REPO">https://github.com/USER/REPO</a></span>.<a href="#section-note.1-4" class="pilcrow">¶</a></p>
+        <span><a href="https://github.com/paullouisageneau/draft-ndtc">https://github.com/paullouisageneau/draft-ndtc</a></span>.<a href="#section-note.1-4" class="pilcrow">¶</a></p>
 </section>
 <div id="status-of-memo">
 <section id="section-boilerplate.1">
@@ -1117,7 +1142,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 20 December 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 20 April 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1153,19 +1178,85 @@ svg :is([fill="white"], [fill^="#fff"]) {
             <p id="section-toc.1-1.2.1" class="keepWithNext"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-conventions-and-definitions" class="internal xref">Conventions and Definitions</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
-            <p id="section-toc.1-1.3.1" class="keepWithNext"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+            <p id="section-toc.1-1.3.1" class="keepWithNext"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-general-principle" class="internal xref">General Principle</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
-            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-algorithm-overview" class="internal xref">Algorithm Overview</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1">
+                <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-illustrating-using-rtp-rtcp" class="internal xref">Illustrating using RTP/RTCP</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2">
+                <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="auto internal xref">4.2</a>.  <a href="#name-architecture-considerations" class="internal xref">Architecture considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2.2.1">
+                    <p id="section-toc.1-1.4.2.2.2.1.1"><a href="#section-4.2.1" class="auto internal xref">4.2.1</a>.  <a href="#name-sender-side-agent" class="internal xref">Sender-side Agent</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2.2.2">
+                    <p id="section-toc.1-1.4.2.2.2.2.1"><a href="#section-4.2.2" class="auto internal xref">4.2.2</a>.  <a href="#name-receiver-side-agent" class="internal xref">Receiver-side Agent</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2.2.3">
+                    <p id="section-toc.1-1.4.2.2.2.3.1"><a href="#section-4.2.3" class="auto internal xref">4.2.3</a>.  <a href="#name-timing-and-timestamping" class="internal xref">Timing and Timestamping</a></p>
+</li>
+                </ul>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3">
+                <p id="section-toc.1-1.4.2.3.1"><a href="#section-4.3" class="auto internal xref">4.3</a>.  <a href="#name-frame-dithering-available-c" class="internal xref">Frame Dithering Available Capacity Estimation (FDACE)</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.4">
+                <p id="section-toc.1-1.4.2.4.1"><a href="#section-4.4" class="auto internal xref">4.4</a>.  <a href="#name-target-frame-size-from-avai" class="internal xref">Target Frame Size from Available Capacity</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.5">
+                <p id="section-toc.1-1.4.2.5.1"><a href="#section-4.5" class="auto internal xref">4.5</a>.  <a href="#name-combined-aimd-congestion-co" class="internal xref">Combined AIMD Congestion Control</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.6">
+                <p id="section-toc.1-1.4.2.6.1"><a href="#section-4.6" class="auto internal xref">4.6</a>.  <a href="#name-encoder-target-frame-size" class="internal xref">Encoder Target Frame Size</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.7">
+                <p id="section-toc.1-1.4.2.7.1"><a href="#section-4.7" class="auto internal xref">4.7</a>.  <a href="#name-adaptive-frame-pacer" class="internal xref">Adaptive Frame Pacer</a></p>
+</li>
+            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
-            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-implementation-details" class="internal xref">Implementation Details</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.1">
+                <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="auto internal xref">5.1</a>.  <a href="#name-variables-and-parameters" class="internal xref">Variables and Parameters</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.2">
+                <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="auto internal xref">5.2</a>.  <a href="#name-frame-size-calculation" class="internal xref">Frame Size Calculation</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.3">
+                <p id="section-toc.1-1.5.2.3.1"><a href="#section-5.3" class="auto internal xref">5.3</a>.  <a href="#name-loss-detection" class="internal xref">Loss Detection</a></p>
+</li>
+            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
-            <p id="section-toc.1-1.6.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-active-queue-management-con" class="internal xref">Active Queue Management Considerations</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
-            <p id="section-toc.1-1.7.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
+            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
+            <p id="section-toc.1-1.10.1"><a href="#appendix-A" class="auto internal xref">Appendix A</a>.  <a href="#name-dual-variable-ewma-process-" class="internal xref">Dual-variable EWMA Process Implementation</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
+            <p id="section-toc.1-1.11.1"><a href="#appendix-B" class="auto internal xref">Appendix B</a>.  <a href="#name-estimate-implementation" class="internal xref">Estimate Implementation</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
+            <p id="section-toc.1-1.12.1"><a href="#appendix-C" class="auto internal xref">Appendix C</a>.  <a href="#name-aimd-logic-implementation" class="internal xref">AIMD Logic Implementation</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13">
+            <p id="section-toc.1-1.13.1"><a href="#appendix-D" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14">
+            <p id="section-toc.1-1.14.1"><a href="#appendix-E" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
 </li>
         </ul>
 </nav>
@@ -1176,7 +1267,48 @@ svg :is([fill="white"], [fill^="#fff"]) {
       <h2 id="name-introduction">
 <a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
       </h2>
-<p id="section-1-1">TODO Introduction<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-1">This document specifies implementation details and considerations for
+Network Delivery Time Control (NDTC) <span>[<a href="#NDTC-LCN" class="cite xref">NDTC-LCN</a>]</span>, a rate
+adaptation and congestion control algorithm for real-time, interactive video flows
+which adapts the target frame size to fit within the available
+path capacity, proactively minimizing self-induced congestion.
+NDTC also reacts to traditional packet loss signals and is compatible
+with networks that implement the Low Latency, Low Loss, and Scalable Throughput (L4S)
+Internet Service.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">NDTC's characteristics make it ideal for high-bitrate, real-time,
+interactive applications:<a href="#section-1-2" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1-3.1">
+          <p id="section-1-3.1.1">It does not self-induce congestion, keeping queueing delays and
+packet loss to a minimum,<a href="#section-1-3.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-1-3.2">
+          <p id="section-1-3.2.1">Ramp up is fast with no risk of overshoot, even at high bitrates,<a href="#section-1-3.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-1-3.3">
+          <p id="section-1-3.3.1">The encoded video is not required to closely follow the target bitrate,
+and there is no need to send filler data.<a href="#section-1-3.3.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-1-4">These properties make it particularly suited for interactive
+cloud gaming applications, and (potentially) for bitrate ladder rung
+selection in low-latency video applications.<a href="#section-1-4" class="pilcrow">¶</a></p>
+<p id="section-1-5">At a very high level, when NDTC is applied to cloud gaming it continuously
+runs the following loop:<a href="#section-1-5" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1-6.1">
+          <p id="section-1-6.1.1">Pace out each video frame at between 1x and (on average) 2x our current
+estimate of available path capacity, in order to probe the network path for
+additional capacity while minimising burst load on network bottlenecks.<a href="#section-1-6.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-1-6.2">
+          <p id="section-1-6.2.1">Set the target frame size of the video encoder to a fraction of the
+available capacity estimate, thus keeping frame delivery latencies low.<a href="#section-1-6.2.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-1-7">Each frame's paced packet train is a probe to test and update our
+estimate of available capacity, and thus continuously update our
+upper bound on the next encoded video frame's size.<a href="#section-1-7" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="conventions-and-definitions">
@@ -1190,58 +1322,1089 @@ described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</s
 appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="security-considerations">
+<div id="general-principle">
 <section id="section-3">
-      <h2 id="name-security-considerations">
-<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      <h2 id="name-general-principle">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-general-principle" class="section-name selfRef">General Principle</a>
       </h2>
-<p id="section-3-1">TODO Security<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-3-1">A key requirement for real-time video is ensuring
+each frame arrives on time to be presented. Consequently,
+NDTC focuses on timely frame delivery rather than attempting to maximise throughput.
+NDTC aims to ensure each frame reception duration is shorter than a frame period,
+providing sufficient headroom to ensure high probability of each frame arriving in time.
+In practice, the control loop of the algorithm stabilizes the frame reception
+duration by dynamically setting the target frame size to a fraction of the
+estimated path capacity.<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-3-2">NDTC introduces and relies on Frame Dithering Available Capacity Estimation (FDACE),
+a heuristic that paces packetized frames over a dithered send duration and
+estimates available path capacity from the relationship between send
+durations and observed receive durations. Beneficially, capacity estimation is performed
+without injecting additional traffic (beyond the video stream we wish to deliver)
+or filling the path bottleneck to capacity. We then ensure that the flow uses only a
+fraction of the measured capacity to prevent risks of self-induced congestion.<a href="#section-3-2" class="pilcrow">¶</a></p>
+<p id="section-3-3">This process is combined with an
+AIMD (Additive Increase Multiplicative Decrease) congestion control process
+for compatibility with both packet loss congestion signals and ECN (Explicit
+Congestion Notification) <span>[<a href="#RFC9331" class="cite xref">RFC9331</a>]</span> for the L4S (Low Latency, Low Loss, and
+Scalable Throughput) Internet Service <span>[<a href="#RFC9330" class="cite xref">RFC9330</a>]</span>.<a href="#section-3-3" class="pilcrow">¶</a></p>
+<p id="section-3-4">For the rest of this document we describe NDTC based on the following mental model:<a href="#section-3-4" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3-5.1">
+          <p id="section-3-5.1.1">The server is encoding video on-the-fly at a frame rate <code>1/TFRAME</code> (where <code>TFRAME</code>
+is the frame period), while capping each frame to a video frame size target <code>TARGET</code>.<a href="#section-3-5.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-3-5.2">
+          <p id="section-3-5.2.1">The server forms a path capacity probe by pacing the frame's constituent packets
+out over target send duration <code>TSEND</code>.<a href="#section-3-5.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-3-5.3">
+          <p id="section-3-5.3.1">The path's estimated available capacity <code>AVAILABLE</code> is continuously updated using
+each frame's actual send and receive durations (<code>SEND</code> and <code>RECV</code> respectively).<a href="#section-3-5.3.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-3-5.4">
+          <p id="section-3-5.4.1"><code>TARGET</code> is recalculated whenever <code>AVAILABLE</code> changes to ensure the next <code>RECV</code> is
+stabilized around target reception duration <code>TRECV</code>.<a href="#section-3-5.4.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-3-5.5">
+          <p id="section-3-5.5.1">Additionally, <code>TARGET</code> is capped by a combined AIMD process reacting to congestion
+signals like packet loss and ECN.<a href="#section-3-5.5.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-3-6">To properly probe the path, <code>TSEND</code> <span class="bcp14">MUST</span> be a fraction of <code>TRECV</code>, and to minimise on-path
+congestion, <code>TRECV</code> <span class="bcp14">MUST</span> be a fraction of <code>TFRAME</code>.
+We RECOMMEND that <code>TRECV = 0.6 * TFRAME</code> and <code>TSEND = 0.5 * TRECV</code>.
+(For example, sending at 30fps would result in <code>TFRAME = 33ms</code>, <code>TRECV = 20ms</code>
+and <code>TSEND = 10ms</code>.)<a href="#section-3-6" class="pilcrow">¶</a></p>
+<p id="section-3-7">Note: NDTC focuses on uncovering <em>enough</em> available capacity to meet the application's
+needs, it is not trying to instantly discover <em>all</em> the available
+capacity on a path. Specifically, choosing <code>TSEND = 0.5 * TRECV</code> limits FDACE to
+probing up to <code>2.0 * AVAILABLE</code> in any single iteration of the FDACE heuristic.<a href="#section-3-7" class="pilcrow">¶</a></p>
+<p id="section-3-8">NDTC initializes <code>TARGET</code> to <code>INIT_TARGET</code>, and whenever <code>TARGET</code> is recalculated
+the result is constrained to <code>MIN_TARGET &lt;= TARGET &lt;= MAX_TARGET</code>. Actual values
+for the <code>INIT_TARGET</code>, <code>MIN_TARGET</code> and <code>MAX_TARGET</code> parameters are application-specific.<a href="#section-3-8" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="algorithm-overview">
+<section id="section-4">
+      <h2 id="name-algorithm-overview">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-algorithm-overview" class="section-name selfRef">Algorithm Overview</a>
+      </h2>
+<p id="section-4-1">This section details implementation of the whole NDTC feedback loop
+using variable and parameter names summarized
+in section <a href="#variables-and-parameters" class="auto internal xref">Section 5.1</a> (rather than the more
+mathematically-oriented names used in NDTC's conference paper <span>[<a href="#NDTC-LCN" class="cite xref">NDTC-LCN</a>]</span>).<a href="#section-4-1" class="pilcrow">¶</a></p>
+<div id="illustrating-using-rtprtcp">
+<section id="section-4.1">
+        <h3 id="name-illustrating-using-rtp-rtcp">
+<a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-illustrating-using-rtp-rtcp" class="section-name selfRef">Illustrating using RTP/RTCP</a>
+        </h3>
+<p id="section-4.1-1">Although NDTC can be implemented for various real-time video transport
+protocols, this document illustrates the use of NDTC to support
+applications using RTP/RTCP <span>[<a href="#RFC3550" class="cite xref">RFC3550</a>]</span>.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
+<p id="section-4.1-2">In particular, NDTC operates on a single video stream and it is frame-oriented.
+References to a "frame" in the rest of this document means a sequence of
+consecutive RTP packets having the same RTP timestamp and ending with a packet
+whose RTP header Mark bit is set.<a href="#section-4.1-2" class="pilcrow">¶</a></p>
+<p id="section-4.1-3">Defining a frame when NDTC is used for non-RTP flows
+is currently outside the scope of this document.<a href="#section-4.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="architecture-considerations">
+<section id="section-4.2">
+        <h3 id="name-architecture-considerations">
+<a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-architecture-considerations" class="section-name selfRef">Architecture considerations</a>
+        </h3>
+<p id="section-4.2-1">NDTC can be implemented both sender-side or receiver-side depending of the
+application's needs.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
+<p id="section-4.2-2">In the following discussion, the "agent" refers to the entity running the NDTC algorithm.
+A core requirement to execute FDACE is that, for every frame, the agent
+learns the precise durations over which a given frame was sent (<code>SEND</code>)
+and received (<code>RECV</code>). Recommendations for transmitting this timing information between
+senders and receivers is discussed in subsequent sections.<a href="#section-4.2-2" class="pilcrow">¶</a></p>
+<p id="section-4.2-3">If the agent is the sender, the algorithm runs on every frame feedback. If the
+agent is the receiver, the algorithm runs as soon as a frame is received and
+sends the updated target frame size (<code>TARGET</code>) to the server.<a href="#section-4.2-3" class="pilcrow">¶</a></p>
+<div id="sender-side-agent">
+<section id="section-4.2.1">
+          <h4 id="name-sender-side-agent">
+<a href="#section-4.2.1" class="section-number selfRef">4.2.1. </a><a href="#name-sender-side-agent" class="section-name selfRef">Sender-side Agent</a>
+          </h4>
+<p id="section-4.2.1-1">Sender-side NDTC can be instantiated by having receivers
+pass <code>RECV</code> back to the sender inside existing
+RTCP-based Feedback for Congestion Control <span>[<a href="#RFC8888" class="cite xref">RFC8888</a>]</span> or
+Transport-wide Congestion Control (TWCC) <span>[<a href="#draft-holmer-rmcat-transport-wide-cc-extensions" class="cite xref">draft-holmer-rmcat-transport-wide-cc-extensions</a>]</span>
+reports. Alternatively, an implementor might introduce application-specific
+RTCP feedback to make messages smaller and achieve better precision.<a href="#section-4.2.1-1" class="pilcrow">¶</a></p>
+<p id="section-4.2.1-2">The receiver is also required to report which packets have not been received
+(as decribed in <a href="#loss" class="auto internal xref">Section 5.3</a>) and <span class="bcp14">SHOULD</span> also reflect Explicit Congestion Notification (ECN)
+markings of received packets (if support for L4S is desired).<a href="#section-4.2.1-2" class="pilcrow">¶</a></p>
+<p id="section-4.2.1-3">In this scenario, the agent has local control of the underlying
+packet pacer and video encoder.<a href="#section-4.2.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="receiver-side-agent">
+<section id="section-4.2.2">
+          <h4 id="name-receiver-side-agent">
+<a href="#section-4.2.2" class="section-number selfRef">4.2.2. </a><a href="#name-receiver-side-agent" class="section-name selfRef">Receiver-side Agent</a>
+          </h4>
+<p id="section-4.2.2-1">Receiver-side NDTC requires the receiver to regularly pass back updates
+to <code>TARGET</code> (to properly control the video encoder) and <code>SLOPE</code>
+(section <a href="#fdace" class="auto internal xref">Section 4.3</a>) to properly control the packet pacer. This may
+be achieved with e.g. RTCP messages like Receiver Estimated Maximum Bitrate (REMB)
+<span>[<a href="#draft-alvestrand-rmcat-remb" class="cite xref">draft-alvestrand-rmcat-remb</a>]</span>.<a href="#section-4.2.2-1" class="pilcrow">¶</a></p>
+<p id="section-4.2.2-2">Note: if the receiver agent cannot pass back <code>SLOPE</code> information, the sender's
+pacing heuristic <span class="bcp14">SHOULD</span> assume <code>SLOPE = 1</code>.<a href="#section-4.2.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="timing-and-timestamping">
+<section id="section-4.2.3">
+          <h4 id="name-timing-and-timestamping">
+<a href="#section-4.2.3" class="section-number selfRef">4.2.3. </a><a href="#name-timing-and-timestamping" class="section-name selfRef">Timing and Timestamping</a>
+          </h4>
+<p id="section-4.2.3-1">The precision with which <code>SEND</code> and <code>RECV</code> are measured and reported
+<span class="bcp14">MUST</span> be 1ms or better. Indeed, the durations are typically around a few
+milliseconds only, so a lower precision would not be sufficient to obtain a
+consistent estimate, even by averaging multiple samples.
+We RECOMMEND a precision of 0.1ms.<a href="#section-4.2.3-1" class="pilcrow">¶</a></p>
+<p id="section-4.2.3-2">If the agent is implemented sender-side, we assume the agent derives <code>SEND</code>
+from local knowledge (e.g. timestamps generated low in the networking stack),
+and learns <code>RECV</code> from reports passed back by the receiver.<a href="#section-4.2.3-2" class="pilcrow">¶</a></p>
+<p id="section-4.2.3-3">If the agent is implemented receiver-side, we assume the agent derives <code>RECV</code>
+from local knowledge (e.g. kernel timestamps from the underlying network
+interface) and learns <code>SEND</code> via in-band messages from the sender. For instance,
+the sender can write the effective send time on each packet just before it goes
+out using the <span>[<a href="#abs-send-time" class="cite xref">abs-send-time</a>]</span> RTP extension.<a href="#section-4.2.3-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="fdace">
+<section id="section-4.3">
+        <h3 id="name-frame-dithering-available-c">
+<a href="#section-4.3" class="section-number selfRef">4.3. </a><a href="#name-frame-dithering-available-c" class="section-name selfRef">Frame Dithering Available Capacity Estimation (FDACE)</a>
+        </h3>
+<p id="section-4.3-1">FDACE calculates an estimated available capacity <code>AVAILABLE</code> and a slope <code>SLOPE</code>
+given send and receive durations for a frame.<a href="#section-4.3-1" class="pilcrow">¶</a></p>
+<p id="section-4.3-2">Frame size <code>LENGTH</code> is calculated by summing up packet payload sizes for the frame
+according to <a href="#framesize" class="auto internal xref">Section 5.2</a>.
+Therefore <code>AVAILABLE</code> will actually refer to application-layer
+capacity expressed in terms of video bitrate.<a href="#section-4.3-2" class="pilcrow">¶</a></p>
+<p id="section-4.3-3">If the frame consists of a single packet, if <code>LENGTH</code> is strictly less than
+<code>MIN_TARGET</code>, or if the frame suffered packet loss in the sense of <a href="#loss" class="auto internal xref">Section 5.3</a>,
+the agent does not run FDACE.
+Instead, it sets <code>TARGET</code> and <code>SLOPE</code> to the values calculated for the last
+frame without packet loss and immediately jumps to the AIMD congestion control
+described in <a href="#congestion" class="auto internal xref">Section 4.5</a>.<a href="#section-4.3-3" class="pilcrow">¶</a></p>
+<p id="section-4.3-4">If the frame was packetized as 2 packets or more and suffered no packet loss,
+the agent first calculates the normalized send duration <code>NSEND</code> and the
+normalized reception duration <code>NRECV</code> for the frame by respectively dividing
+frame send duration <code>SEND</code> and frame receive duration <code>RECV</code> by frame size
+<code>LENGTH</code>.<a href="#section-4.3-4" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.3-5">
+<pre>
+NSEND = SEND / LENGTH
+NRECV = RECV / LENGTH
+</pre><a href="#section-4.3-5" class="pilcrow">¶</a>
+</div>
+<p id="section-4.3-6">Send duration <code>SEND</code> corresponds to the elapsed time between sending the first
+packet and sending the last packet of the frame (i.e. the one with the RTP marker).
+It <span class="bcp14">MUST NOT</span> be the calculated send duration in <a href="#pacer" class="auto internal xref">Section 4.7</a> if different from the
+actual duration over which the pacer did send the frame.
+Packet send times <span class="bcp14">SHOULD</span> be measured as close as socket send calls as possible.<a href="#section-4.3-6" class="pilcrow">¶</a></p>
+<p id="section-4.3-7">Receive duration <code>RECV</code> corresponds to the elapsed time between reception of
+the first packet and reception of the last packet of the frame (i.e. the one
+with the RTP marker). Note there is no need for sender and receiver clock
+synchronization.
+In practice, packet reception times <span class="bcp14">SHOULD</span> be measured using kernel timestamps
+for enhanced precision, as the application might take significant time to
+receive packets in userspace.
+The agent <span class="bcp14">SHOULD</span> cap <code>RECV</code> to a small multiple of the frame period in order to
+mitigate outliers caused by transient adverse network events while still
+allowing the value to grow large enough to capture bursts of cross-traffic
+and reflect sudden path capacity reductions.
+The <span class="bcp14">RECOMMENDED</span> maximum value for <code>RECV</code> is <code>3*TFRAME</code>.<a href="#section-4.3-7" class="pilcrow">¶</a></p>
+<p id="section-4.3-8">A dual-variable EWMA process is updated with the new sample <code>(NSEND, NRECV)</code>.
+The process calculates the averages <code>AVG_NSEND</code>, <code>AVG_NRECV</code>, the variances
+<code>VAR_NSEND</code> and <code>VAR_NRECV</code>, and the covariance <code>COVAR</code>.
+The <span class="bcp14">RECOMMENDED</span> weight is <code>LAMBDA = 0.04</code>.
+A suitable implementation of the dual-variable EWMA process is detailed
+in <a href="#ewma-implementation" class="auto internal xref">Appendix A</a>.<a href="#section-4.3-8" class="pilcrow">¶</a></p>
+<p id="section-4.3-9">The agent now derives the linear regression parameters from the output of the
+EWMA process. The slope <code>SLOPE</code> and y-intercept <code>INTERCEPT</code> of the linear
+equation <code>NRECV = SLOPE * NSEND + INTERCEPT</code> are calculated as follows:<a href="#section-4.3-9" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.3-10">
+<pre>
+if (VAR_NSEND &gt; 0.0) {
+    SLOPE = min(COVAR / VAR_NSEND, 1.0)
+} else {
+    SLOPE = 0.0
+}
+INTERCEPT = max(AVG_NRECV - SLOPE * AVG_NSEND, 0.0)
+</pre><a href="#section-4.3-10" class="pilcrow">¶</a>
+</div>
+<p id="section-4.3-11"><code>SLOPE</code> reflects how pacing frames changes their reception as they go through
+the path bottleneck and intercept more or less cross-traffic. The relationship
+is locally linear because we observe normalized times and not rates, and network
+path components behave linearly in terms of processing time per byte to a good
+approximation.<a href="#section-4.3-11" class="pilcrow">¶</a></p>
+<p id="section-4.3-12">If the path is not constraining, for instance during ramp-up, receive duration
+is always equal to send duration, and <code>SLOPE = 1</code>, which can be interpreted as
+the path capacity looking infinite.<a href="#section-4.3-12" class="pilcrow">¶</a></p>
+<p id="section-4.3-13">If there is no visible cross-traffic and the flow is alone at
+bottleneck, the slope <code>SLOPE</code> is 0, the send rate does not matter as we always
+receive at bottleneck rate.
+If cross-traffic takes most of the bottlneck capacity, <code>SLOPE</code> is close to 1.
+More generally, we can calculate that in a single FIFO bottleneck scenario
+with constant-rate cross traffic, <code>SLOPE</code> is the fraction of the bottleneck
+capacity occupied by cross-traffic. However, this statement does not hold
+true in all scenarios. FDACE does not require such a simple scenario and
+performs correctly in more complex network setups, for instance with more
+advanced AQM (Active Queue Management) disciplines (see <a href="#aqm" class="auto internal xref">Section 6</a>).<a href="#section-4.3-13" class="pilcrow">¶</a></p>
+<p id="section-4.3-14">The y-intercept <code>INTERCEPT</code> reflects the normalized receive duration that we
+would measure if the frame was sent as an unpaced burst, reflecting total path
+capacity.<a href="#section-4.3-14" class="pilcrow">¶</a></p>
+<p id="section-4.3-15">The agent extrapolates <code>ESTIMATE</code>, the normalized reception duration that we
+would measure if the frame was sent at receive rate, reflecting available
+capacity on the path. It corresponds to the ordinate of intersection with
+the identity line <code>NRECV = NSEND</code>.<a href="#section-4.3-15" class="pilcrow">¶</a></p>
+<p id="section-4.3-16">In order to be robust when <code>SLOPE</code> is close or equal to 1, <code>ESTIMATE</code> is
+approximated with successive iterations from <code>AVG_NRECV</code> and converging to the
+intersection.
+The <span class="bcp14">RECOMMENDED</span> number of iterations is <code>ITERATIONS = 3</code>. If <code>ITERATIONS</code> is
+too low, NDTC will overestimate the available capacity in the presence of
+cross-traffic. If <code>ITERATIONS</code> is higher, NDTC yields more easily against
+elastic cross-traffic.<a href="#section-4.3-16" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.3-17">
+<pre>
+ESTIMATE = AVG_NRECV
+for (i = 0; i &lt; ITERATIONS; i++) {
+    ESTIMATE = SLOPE * ESTIMATE + INTERCEPT
+}
+</pre><a href="#section-4.3-17" class="pilcrow">¶</a>
+</div>
+<p id="section-4.3-18">This means that when the flow is not contrained and <code>SLOPE = 1</code>,
+<code>ESTIMATE = AVG_NRECV</code>, which is a conservative estimate for the capacity.<a href="#section-4.3-18" class="pilcrow">¶</a></p>
+<p id="section-4.3-19">For increased simplicity and performance in CPU-constrained environments,
+the loop <span class="bcp14">MAY</span> be unrolled as noted in <a href="#estimate-implementation" class="auto internal xref">Appendix B</a>.<a href="#section-4.3-19" class="pilcrow">¶</a></p>
+<p id="section-4.3-20">The agent <span class="bcp14">SHOULD</span> add a conservative margin <code>MARGIN</code> to <code>ESTIMATE</code>, increasing
+with the linear regression error. The <span class="bcp14">RECOMMENDED</span> formula to calculate <code>MARGIN</code>
+is to multiply a constant <code>KMARGIN</code> by the standard deviation of <code>NRECV</code> and to
+<code>1-R2</code> where <code>R2</code> is the coefficient of determination representing the proportion
+of variation in <code>NRECV</code> explained by the linear regression. The <span class="bcp14">RECOMMENDED</span> value
+for <code>KMARGIN</code> is 0.25. A value to close to 0 makes the algorithm react slower to
+abrupt changes. A value too high for k makes the algorithm significantly
+underestimate the capacity in the presence of bursty cross traffic.<a href="#section-4.3-20" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.3-21">
+<pre>
+if (VAR_NSEND &gt; 0.0 &amp;&amp; VAR_NRECV &gt; 0.0) {
+    R2 = COVAR^2 / (VAR_NSEND * VAR_NRECV)
+    MARGIN = KMARGIN * sqrt(VAR_NRECV) * (1-R2)
+} else {
+    MARGIN = 0.0
+}
+</pre><a href="#section-4.3-21" class="pilcrow">¶</a>
+</div>
+<p id="section-4.3-22">Available capacity <code>AVAILABLE</code> is calculated by taking the reciprocal of
+<code>ESTIMATE</code> plus <code>MARGIN</code>:<a href="#section-4.3-22" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.3-23">
+<pre>
+AVAILABLE = 1.0 / (ESTIMATE + MARGIN)
+</pre><a href="#section-4.3-23" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="target">
+<section id="section-4.4">
+        <h3 id="name-target-frame-size-from-avai">
+<a href="#section-4.4" class="section-number selfRef">4.4. </a><a href="#name-target-frame-size-from-avai" class="section-name selfRef">Target Frame Size from Available Capacity</a>
+        </h3>
+<p id="section-4.4-1">Before FDACE and the combined congestion control run for the first time,
+<code>TARGET</code> is initialized to <code>INIT_TARGET</code> and <code>SLOPE</code> is initialized to 1.0.<a href="#section-4.4-1" class="pilcrow">¶</a></p>
+<p id="section-4.4-2">Each time FDACE runs and updates the available capacity, the agent now derives
+the new target frame size <code>TARGET</code> from <code>TRECV</code> and <code>AVAILABLE</code> and caps it to
+<code>MAX_TARGET</code>.<a href="#section-4.4-2" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.4-3">
+<pre>
+TARGET = min(TRECV * AVAILABLE, MAX_TARGET)
+</pre><a href="#section-4.4-3" class="pilcrow">¶</a>
+</div>
+<p id="section-4.4-4">The agent <span class="bcp14">MUST</span> cap <code>TARGET</code> to <code>MAX_TARGET</code> even if the encoder has its own internal
+maximum frame size to prevent a runaway feedback loop in case the path capacity
+is very large. Without capping, NDTC would continue increasing the target frame
+size until it matches the available path capacity even if the encoded video can't
+follow it, pacing over shorter and shorter durations in the process.
+Frames would be sent as very short bursts, increasing the risk of packet loss.
+<code>MAX_TARGET</code> <span class="bcp14">SHOULD</span> be a sensible frame size that the video content can
+realistically reach.<a href="#section-4.4-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="congestion">
+<section id="section-4.5">
+        <h3 id="name-combined-aimd-congestion-co">
+<a href="#section-4.5" class="section-number selfRef">4.5. </a><a href="#name-combined-aimd-congestion-co" class="section-name selfRef">Combined AIMD Congestion Control</a>
+        </h3>
+<p id="section-4.5-1">Even if FDAC can successfully run on its own most of the time, it doesn't react
+to conventional indications of network congestion, in particular packet loss,
+whereas reacting to packet loss is essential in the presence of a policer on the
+path. Therefore, NDTC combines an AIMD (Additive Increase Multiplicative
+Decrease) process with FDAC to also adjust the frame size and send duration in
+response to conventional congestion feedback. It allows the algorithm to
+seamlessly transition between capacity estimation and congestion signals,
+following the path evolution.<a href="#section-4.5-1" class="pilcrow">¶</a></p>
+<p id="section-4.5-2">The AIMD process computes a congestion target frame size <code>CTARGET</code> and a
+pseudo-slope <code>CSLOPE</code> to respectively cap <code>TARGET</code> and <code>SLOPE</code>, in order to limit
+the effective pacer rate. See <a href="#pacer" class="auto internal xref">Section 4.7</a> for details about how the pacer adapts
+the sending duration according to the slope.<a href="#section-4.5-2" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.5-3.1">
+            <p id="section-4.5-3.1.1">When <code>CTARGET &lt; TARGET</code>, the flow is congestion-limited, therefore <code>TARGET</code>
+is set to <code>CTARGET</code> and <code>CSLOPE</code> is set to 0.0 so the pacer sends at rate
+<code>CTARGET / TRECV</code>.<a href="#section-4.5-3.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-4.5-3.2">
+            <p id="section-4.5-3.2.1">When <code>CTARGET &gt;= TARGET</code>, the flow is not congestion limited, therefore
+<code>TARGET</code> is unchanged and <code>CSLOPE</code> is set so that the pacer send duration
+results in a send rate around <code>CTARGET / TRECV</code>.<a href="#section-4.5-3.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-4.5-3.3">
+            <p id="section-4.5-3.3.1">When <code>CTARGET</code> reaches <code>TARGET * TRECV / TSEND</code>, <code>CSLOPE</code> reaches 1.0 and
+the pacer reaches its minimum send duration and maximum send rate around
+<code>TARGET/TRECV</code>.<a href="#section-4.5-3.3.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-4.5-4">Therefore, the maximum congestion frame size for the AIMD logic is defined to
+correspond to the maximum send rate:<a href="#section-4.5-4" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.5-5">
+<pre>
+CMAX = TARGET * TRECV / TSEND
+</pre><a href="#section-4.5-5" class="pilcrow">¶</a>
+</div>
+<p id="section-4.5-6">For each transmitted frame, the agent identifies whether packets of the frame were
+lost as described in <a href="#loss" class="auto internal xref">Section 5.3</a>, and runs the AIMD logic to update a congestion
+frame size <code>CSIZE</code>. <code>CSIZE</code> <span class="bcp14">SHOULD</span> be initialized to <code>MAX_TARGET</code> as in most
+cases FDACE should be self-sufficient.<a href="#section-4.5-6" class="pilcrow">¶</a></p>
+<p id="section-4.5-7">If one or more packets were lost, the agent performs a decrease by capping
+<code>CSIZE</code> to <code>CMAX</code> and multiplying it by <code>BETA</code>. If no packets were lost
+and <code>CSIZE</code> is less than <code>CMAX</code>, the agent increases <code>CSIZE</code> by adding
+<code>ALPHA</code>, then caps the result to <code>CMAX</code>.
+The <span class="bcp14">RECOMMENDED</span> values are <code>ALPHA=40 bytes</code> and <code>BETA=0.7</code> to make increase
+and decrease relatively conservative and minimize QoE redution.<a href="#section-4.5-7" class="pilcrow">¶</a></p>
+<p id="section-4.5-8">The AIMD logic <span class="bcp14">SHOULD NOT</span> feature a slow start phase and both decrease and
+increase <span class="bcp14">SHOULD</span> be suppressed for one round-trip after a loss event.
+In order to support L4S <span>[<a href="#RFC9330" class="cite xref">RFC9330</a>]</span>, the agent <span class="bcp14">SHOULD</span> also react similarly
+to Prague congestion control <span>[<a href="#draft-briscoe-iccrg-prague-congestion-control" class="cite xref">draft-briscoe-iccrg-prague-congestion-control</a>]</span>,
+which requires supporting ECN <span>[<a href="#RFC9331" class="cite xref">RFC9331</a>]</span>, and if the agent is the sender, it also
+requires compatible feedback like <span>[<a href="#RFC8888" class="cite xref">RFC8888</a>]</span>. If the last ECN decrease is
+more recent than the last packet loss event, the increase <span class="bcp14">SHOULD</span> be performed
+by adding a larger <code>EALPHA</code> instead of <code>ALPHA</code> for the flow to compete more
+fairly with other flows. The <span class="bcp14">RECOMMENDED</span> value is <code>EALPHA=400 bytes</code>.<a href="#section-4.5-8" class="pilcrow">¶</a></p>
+<p id="section-4.5-9">The <span class="bcp14">RECOMMENDED</span> algorithm is described in <a href="#aimd-implementation" class="auto internal xref">Appendix C</a>.<a href="#section-4.5-9" class="pilcrow">¶</a></p>
+<p id="section-4.5-10">If the agent is the sender, it <span class="bcp14">SHOULD</span> also perform the decrease in case it
+does not get any feedback for a significant duration after sending a frame.
+In any case, the sender <span class="bcp14">SHOULD</span> implement a circuit breaker to stop sending
+after it stops receiving feedback for a significant duration, following the
+recommendations in <span>[<a href="#RFC8083" class="cite xref">RFC8083</a>]</span>.<a href="#section-4.5-10" class="pilcrow">¶</a></p>
+<p id="section-4.5-11">The congestion frame size <code>CTARGET</code> is calculated as the minimum of
+<code>CSIZE</code> and <code>CMAX</code>:<a href="#section-4.5-11" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.5-12">
+<pre>
+CTARGET = min(CSIZE, CMAX)
+</pre><a href="#section-4.5-12" class="pilcrow">¶</a>
+</div>
+<p id="section-4.5-13">Then, <code>CSLOPE</code> is calculated such that the average pacing rate is
+<code>CTARGET/TRECV</code>:<a href="#section-4.5-13" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.5-14">
+<pre>
+CSLOPE = max(1 - (TSEND/TRECV) * (CMAX/CTARGET), 0) / (1 - TSEND/TRECV)
+</pre><a href="#section-4.5-14" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="encoder">
+<section id="section-4.6">
+        <h3 id="name-encoder-target-frame-size">
+<a href="#section-4.6" class="section-number selfRef">4.6. </a><a href="#name-encoder-target-frame-size" class="section-name selfRef">Encoder Target Frame Size</a>
+        </h3>
+<p id="section-4.6-1">The agent caps the target frame size <code>TARGET</code> and the slope <code>SLOPE</code>
+with <code>CTARGET</code> and <code>CSLOPE</code> respectively to take into account the most
+conservative estimate:<a href="#section-4.6-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.6-2">
+<pre>
+TARGET = min(TARGET, CTARGET)
+SLOPE = min(SLOPE, CSLOPE)
+</pre><a href="#section-4.6-2" class="pilcrow">¶</a>
+</div>
+<p id="section-4.6-3">The agent <span class="bcp14">MUST</span> then floor <code>TARGET</code> to <code>MIN_TARGET</code>:<a href="#section-4.6-3" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.6-4">
+<pre>
+TARGET = max(TARGET, MIN_TARGET)
+</pre><a href="#section-4.6-4" class="pilcrow">¶</a>
+</div>
+<p id="section-4.6-5">Flooring to <code>MIN_TARGET</code> is required to ensure that the whole feedback loop
+does not get stuck producing 1-packet frames, which do not allow the agent
+to run FDACE and update <code>TARGET</code>.
+The <span class="bcp14">RECOMMENDED</span> value for <code>MIN_TARGET</code> is 2000 bytes as a frame of such a size
+will be packetized into 2 packets of significant size given a typical path MTU.<a href="#section-4.6-5" class="pilcrow">¶</a></p>
+<p id="section-4.6-6">The sender <span class="bcp14">SHOULD</span> set the encoder target frame size to <code>TARGET</code> as soon as possible
+(i.e. the encoder target bitrate is set to <code>TARGET/TFRAME</code>).<a href="#section-4.6-6" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="pacer">
+<section id="section-4.7">
+        <h3 id="name-adaptive-frame-pacer">
+<a href="#section-4.7" class="section-number selfRef">4.7. </a><a href="#name-adaptive-frame-pacer" class="section-name selfRef">Adaptive Frame Pacer</a>
+        </h3>
+<p id="section-4.7-1">When a new video frame is generated at the sender, it is first packetized
+into RTP packets.
+The exact packetization process depends on video codec. The sender
+<span class="bcp14">SHOULD</span> first pad the frame to <code>MIN_FRAME</code> with codec-specific bitstream filler
+data if it is smaller. A frame of size <code>MIN_FRAME</code> or larger <span class="bcp14">MUST</span> be packetized
+in a least 2 packets. The sender <span class="bcp14">SHOULD</span> also attempt to packetize the frame
+into packets of similar sizes. The sender <span class="bcp14">MAY</span> add RTP padding as specified
+in <span>[<a href="#RFC3550" class="cite xref">RFC3550</a>]</span> to help make packet sizes similar.<a href="#section-4.7-1" class="pilcrow">¶</a></p>
+<p id="section-4.7-2">The sender now calculates the desired send duration <code>SEND</code> for the frame.<a href="#section-4.7-2" class="pilcrow">¶</a></p>
+<p id="section-4.7-3">When not at bottleneck, the send duration is around target send duration <code>TSEND</code>.
+To ensure a positive feedback loop, <code>TSEND</code> <span class="bcp14">MUST</span> be strictly less than
+<code>TRECV</code>, the <span class="bcp14">RECOMMENDED</span> values is <code>TSEND = 0.5 * TRECV = 0.3 * TFRAME</code>.<a href="#section-4.7-3" class="pilcrow">¶</a></p>
+<p id="section-4.7-4">The sender first calculates the base pacing duration <code>PACE</code> by adding dithering of
+amplitude <code>DELTA</code> to <code>TSEND</code> and interpolating with <code>TRECV</code> according to
+<code>SLOPE</code>. The <span class="bcp14">RECOMMENDED</span> value for <code>DELTA</code> is <code>0.5*TSEND</code>.
+With <code>rand()</code> a pseudo-random value in <code>\[-1, 1\]</code>, <code>PACE</code> is calculated as:<a href="#section-4.7-4" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.7-5">
+<pre>
+PACE = SLOPE * (TSEND + rand() * DELTA) + (1 - SLOPE) * TRECV
+</pre><a href="#section-4.7-5" class="pilcrow">¶</a>
+</div>
+<p id="section-4.7-6">Adapting the duration according to <code>SLOPE</code> reduces how aggressively NDTC paces
+packets as the flow gets closer to filling the entire bottleneck.
+It makes the feedback loop run closer to the desired operating point and
+minimizes transient queueing for each frame.
+It also helps FDACE by probing locally in non-linear scenarios and
+stabilizes competition with other NDTC flows.<a href="#section-4.7-6" class="pilcrow">¶</a></p>
+<p id="section-4.7-7">The sender then scales the pacing duration proportionally to <code>LENGTH/TARGET</code>,
+where the frame size <code>LENGTH</code> is calculated according to <a href="#framesize" class="auto internal xref">Section 5.2</a>.
+This helps sustaining the send rate when the encoder produces frames that don't
+match the target frame size. For instance, the encoder may chronically
+underproduce because the video is not dynamic or complex enough, and
+it may temporarily overproduce on scene change.
+Eventually, <code>SEND</code> is capped at the frame period <code>TFRAME</code>.<a href="#section-4.7-7" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.7-8">
+<pre>
+SEND = min(PACE * LENGTH/TARGET, TFRAME)
+</pre><a href="#section-4.7-8" class="pilcrow">¶</a>
+</div>
+<p id="section-4.7-9">The sender also calculates a frame alignment delay as follows to reduce frame
+jitter. The delay is calculated to compensate the send duration variation so
+the last packets of frames are received at the frame period.<a href="#section-4.7-9" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.7-10">
+<pre>
+DELAY = SLOPE * max(PACE + SLOPE * DELTA - SEND, 0)
+</pre><a href="#section-4.7-10" class="pilcrow">¶</a>
+</div>
+<p id="section-4.7-11">The packets of the frame are sent after <code>DELAY</code> over the duration <code>SEND</code>,
+meaning that if the frame is available at <code>t</code>, the first packet is sent at
+<code>t + DELAY</code> and the last packet (i.e. the one with the RTP marker) should be
+sent at <code>t + DELAY + SEND</code>. Other packets are spread evenly over the interval.<a href="#section-4.7-11" class="pilcrow">¶</a></p>
+<p id="section-4.7-12">To achieve this, the sender <span class="bcp14">SHOULD</span> wait for duration <code>DELAY</code>, then for each packet
+<code>p</code>, send it, then wait for an interval <code>SEND * SIZE(p) / LENGTH</code> where
+<code>SIZE(p)</code> is the payload size for packet p.
+The pacer <span class="bcp14">SHOULD</span> match send times with a absolute precision of at least 1ms.
+It <span class="bcp14">MUST</span> prevent cummulative errors from actual wait durations being different
+from expected durations.<a href="#section-4.7-12" class="pilcrow">¶</a></p>
+<p id="section-4.7-13">If ECN is not supported, the pacer does not need to precisely pace packets
+besides the first and last one, and it <span class="bcp14">MAY</span> instead group packets in small
+bursts to prevent waking up too often.<a href="#section-4.7-13" class="pilcrow">¶</a></p>
+<p id="section-4.7-14">In any case, the agent <span class="bcp14">MUST</span> use the actually achieved send duration, not the
+calculated pacing duration, when running FDACE for the frame.<a href="#section-4.7-14" class="pilcrow">¶</a></p>
+<p id="section-4.7-15">If FEC is enabled, the sender <span class="bcp14">SHOULD NOT</span> send FEC packets during duration <code>SEND</code>
+and <span class="bcp14">SHOULD</span> instead pace FEC packets after it, spreading them so that the
+interval between packets is calculated similarly to the interval for video
+packets.<a href="#section-4.7-15" class="pilcrow">¶</a></p>
+<p id="section-4.7-16">If the sender supports retransmissions, the sender <span class="bcp14">SHOULD</span> handle retransmitted
+packets separately. They <span class="bcp14">SHOULD</span> be paced and sent in parallel to video frames.
+If the application features an audio stream, the sender <span class="bcp14">SHOULD</span> handle audio
+packets separately. They <span class="bcp14">SHOULD</span> be sent immediately after they are generated,
+without adding a delay.
+This means retransmissions and audio packets can be sent between two video
+packets. From the point of view of FDACE, they will be accounted for as
+cross-traffic sharing the same path.<a href="#section-4.7-16" class="pilcrow">¶</a></p>
+<p id="section-4.7-17">The pacer <span class="bcp14">MUST</span> handle the corner case where packets from the previous frame are
+still waiting to be sent when the new frame is available, for instance because
+the new frame is early. In this case, it is crucial to ensure that the previous
+frame is fully sent before the new frame is sent. Therefore if packets from the
+previous frame were to be sent after the first packet of the new frame, the
+sender <span class="bcp14">MUST</span> reschedule the leftover packets to send them before the first packet
+of the new frame.<a href="#section-4.7-17" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="implementation-details">
+<section id="section-5">
+      <h2 id="name-implementation-details">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-implementation-details" class="section-name selfRef">Implementation Details</a>
+      </h2>
+<div id="variables-and-parameters">
+<section id="section-5.1">
+        <h3 id="name-variables-and-parameters">
+<a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-variables-and-parameters" class="section-name selfRef">Variables and Parameters</a>
+        </h3>
+<p id="section-5.1-1">The following table summarizes parameters used by the algorithm:<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+<table class="center" id="table-1">
+          <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Parameter</th>
+              <th class="text-left" rowspan="1" colspan="1">Description</th>
+              <th class="text-left" rowspan="1" colspan="1">Unit</th>
+              <th class="text-left" rowspan="1" colspan="1">Recommended</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>MIN_TARGET</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">minimum target frame size</td>
+              <td class="text-left" rowspan="1" colspan="1">bytes</td>
+              <td class="text-left" rowspan="1" colspan="1">2000</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>MAX_TARGET</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">maximum target frame size</td>
+              <td class="text-left" rowspan="1" colspan="1">bytes</td>
+              <td class="text-left" rowspan="1" colspan="1">-</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>INIT_TARGET</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">initial target frame size</td>
+              <td class="text-left" rowspan="1" colspan="1">bytes</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>&lt;= MAX_TARGET/2</code>
+</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>TRECV</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">target receive duration</td>
+              <td class="text-left" rowspan="1" colspan="1">seconds</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>0.6 * TFRAME</code>
+</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>TSEND</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">target send duration</td>
+              <td class="text-left" rowspan="1" colspan="1">seconds</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>0.5 * TRECV</code>
+</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>ITERATIONS</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">extrapolation iterations</td>
+              <td class="text-left" rowspan="1" colspan="1">-</td>
+              <td class="text-left" rowspan="1" colspan="1">3</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>ALPHA</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">congestion additive increase</td>
+              <td class="text-left" rowspan="1" colspan="1">bytes</td>
+              <td class="text-left" rowspan="1" colspan="1">40</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>EALPHA</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">congestion additive increase for ECN</td>
+              <td class="text-left" rowspan="1" colspan="1">bytes</td>
+              <td class="text-left" rowspan="1" colspan="1">400</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>BETA</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">congestion multiplicative decrease</td>
+              <td class="text-left" rowspan="1" colspan="1">-</td>
+              <td class="text-left" rowspan="1" colspan="1">0.7</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>DELTA</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">send dithering amplitude</td>
+              <td class="text-left" rowspan="1" colspan="1">seconds</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>0.5 * TSEND</code>
+</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>LAMBDA</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">regression EWMA weight</td>
+              <td class="text-left" rowspan="1" colspan="1">-</td>
+              <td class="text-left" rowspan="1" colspan="1">0.04</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>KMARGIN</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">estimation margin constant</td>
+              <td class="text-left" rowspan="1" colspan="1">-</td>
+              <td class="text-left" rowspan="1" colspan="1">0.25</td>
+            </tr>
+          </tbody>
+        </table>
+<p id="section-5.1-3">The following table summarizes variables used by the algorithm:<a href="#section-5.1-3" class="pilcrow">¶</a></p>
+<table class="center" id="table-2">
+          <caption><a href="#table-2" class="selfRef">Table 2</a></caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Variable</th>
+              <th class="text-left" rowspan="1" colspan="1">Description</th>
+              <th class="text-left" rowspan="1" colspan="1">Unit</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>AVAILABLE</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">estimated available capacity</td>
+              <td class="text-left" rowspan="1" colspan="1">bytes/second</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>DELAY</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">pacing alignment delay</td>
+              <td class="text-left" rowspan="1" colspan="1">seconds</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>TARGET</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">target frame size from FDAC</td>
+              <td class="text-left" rowspan="1" colspan="1">bytes</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>CTARGET</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">target frame size from AIMD</td>
+              <td class="text-left" rowspan="1" colspan="1">bytes</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>LENGTH</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">actual frame size</td>
+              <td class="text-left" rowspan="1" colspan="1">bytes</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>CMAX</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">AIMD maximum frame size</td>
+              <td class="text-left" rowspan="1" colspan="1">bytes</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>PACE</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">base pacing duration</td>
+              <td class="text-left" rowspan="1" colspan="1">seconds</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>SEND</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">send duration for the frame</td>
+              <td class="text-left" rowspan="1" colspan="1">seconds</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>RECV</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">receive duration for the frame</td>
+              <td class="text-left" rowspan="1" colspan="1">seconds</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>SLOPE</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">linear regression slope (a)</td>
+              <td class="text-left" rowspan="1" colspan="1">-</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>INTERCEPT</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">linear regression y-intercept (b)</td>
+              <td class="text-left" rowspan="1" colspan="1">seconds/byte</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>ESTIMATE</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">extrapolated estimate</td>
+              <td class="text-left" rowspan="1" colspan="1">seconds/byte</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>MARGIN</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">estimation margin</td>
+              <td class="text-left" rowspan="1" colspan="1">seconds/byte</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>CSLOPE</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">pseudo-slope from AIMD</td>
+              <td class="text-left" rowspan="1" colspan="1">-</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>NSEND</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">normalized send duration</td>
+              <td class="text-left" rowspan="1" colspan="1">seconds/byte</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>NRECV</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">normalized receive duration</td>
+              <td class="text-left" rowspan="1" colspan="1">seconds/byte</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>AVG_NSEND</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">average of norm. send duration</td>
+              <td class="text-left" rowspan="1" colspan="1">seconds/byte</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>AVG_NRECV</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">average of norm. receive duration</td>
+              <td class="text-left" rowspan="1" colspan="1">seconds/byte</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>VAR_NSEND</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">variance of norm. send duration</td>
+              <td class="text-left" rowspan="1" colspan="1">(seconds/byte)^2</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>VAR_NRECV</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">variance of norm. receive duration</td>
+              <td class="text-left" rowspan="1" colspan="1">(seconds/byte)^2</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>COVAR</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">covariance of norm. send and receive durations</td>
+              <td class="text-left" rowspan="1" colspan="1">(seconds/byte)^2</td>
+            </tr>
+          </tbody>
+        </table>
+</section>
+</div>
+<div id="framesize">
+<section id="section-5.2">
+        <h3 id="name-frame-size-calculation">
+<a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-frame-size-calculation" class="section-name selfRef">Frame Size Calculation</a>
+        </h3>
+<p id="section-5.2-1">The frame size <code>LENGTH</code> is used for normalizing the send and receive durations in FDACE
+and calculating the pacing duration. <code>LENGTH</code> is calculated as the sum of RTP payloads
+corresponding to the frame (i.e. sharing the same timestamp). FEC and retransmitted
+packets <span class="bcp14">MUST NOT</span> be counted in <code>LENGTH</code>.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
+<p id="section-5.2-2">Since frame size is calculated from payload sizes only, FDACE will estimate an
+application-layer capacity, and <code>TARGET</code> can be set directly as encoder target.
+Implementors <span class="bcp14">MAY</span> choose to take into account RTP headers, and optionally UDP/IP headers.
+In that case, capacity will more closely reflect network capacity, however target frame
+size <span class="bcp14">SHOULD</span> be decreased by the typical header overhead before being set as encoder target.<a href="#section-5.2-2" class="pilcrow">¶</a></p>
+<p id="section-5.2-3">If the frame consists of two packets or more, send and receive durations do not
+account for one of the extreme packets.
+When sending, since the pacer waits after sending each packet, the sender <span class="bcp14">SHOULD</span>
+sum up payload sizes except the last one.
+When running FDACE, the agent does not know how the path exactly handles packets,
+so it can't know for sure which payload to exclude at reception.
+Therefore, in the context of FDACE, the agent <span class="bcp14">SHOULD</span> calculate <code>LENGTH</code> as the sum
+of all payloads of the frame minus the average size of the first and last one.
+If the frame consists of a single packet, <code>LENGTH</code> is the size of the packet.<a href="#section-5.2-3" class="pilcrow">¶</a></p>
+<p id="section-5.2-4">Note that if the frame is packetized into packets of similar sizes as
+recommended, which packet to exclude does not matter since the payload
+sizes are the same.<a href="#section-5.2-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="loss">
+<section id="section-5.3">
+        <h3 id="name-loss-detection">
+<a href="#section-5.3" class="section-number selfRef">5.3. </a><a href="#name-loss-detection" class="section-name selfRef">Loss Detection</a>
+        </h3>
+<p id="section-5.3-1">Packet loss is taken into account to decide if FDACE should be run for a frame
+and to trigger AIMD decrease. Lost packet are detected by tracking
+discontinuities in received sequence numbers.<a href="#section-5.3-1" class="pilcrow">¶</a></p>
+<p id="section-5.3-2">The receiver <span class="bcp14">SHOULD</span> reorder packets for the currently received frame (i.e.
+timestamp) to avoid misclassifiying reordered packets as lost. As soon as the
+first packet of the next frame (i.e. timestamp) is received, missing packets for
+the previous frame <span class="bcp14">MUST</span> be reported as lost. The receiver <span class="bcp14">MUST</span> consider a packet
+as lost in the context of this algorithm even if it can be recovered with
+Forwared Error Correction or retransmission. Therefore, a frame triggering
+packet loss reaction may still be successfully transmitted.<a href="#section-5.3-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="aqm">
+<section id="section-6">
+      <h2 id="name-active-queue-management-con">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-active-queue-management-con" class="section-name selfRef">Active Queue Management Considerations</a>
+      </h2>
+<p id="section-6-1">As interactive flows in general, NDTC flows greatly benefit
+from AQM (Active Queue Management) disciplines.<a href="#section-6-1" class="pilcrow">¶</a></p>
+<p id="section-6-2">In the case of NDTC, flow queueing, for instance in FQ-CoDel <span>[<a href="#RFC8290" class="cite xref">RFC8290</a>]</span>
+or Cake <span>[<a href="#CAKE" class="cite xref">CAKE</a>]</span>, particularly helps FDACE as cross-traffic packets are
+interleaved in each frame, providing stability in addition to fairness.
+As NDTC adapts the send duration to pace close to available capacity,
+Cake's DRR++ scheme additionally allows NDTC to have priority over bulk traffic.<a href="#section-6-2" class="pilcrow">¶</a></p>
+<p id="section-6-3">NDTC can also take advantage of L4S bottlenecks if the AIMD logic
+behaves as a Prague congestion controller like suggested in <a href="#aimd-implementation" class="auto internal xref">Appendix C</a>,
+providing fairness with TCP Prague and traditional TCP flows.
+An essential aspect is that NDTC can seemlessly transition between L4S and
+standard bottlenecks as the network path evolves.<a href="#section-6-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="security">
+<section id="section-7">
+      <h2 id="name-security-considerations">
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      </h2>
+<p id="section-7-1">An attacker could insert, edit, or drop messages from the connection could cause
+NDTC to underutilizes the path capacity or overhsoot it, causing network
+congestion. The RTP flow and RTCP feedback should be protected from message
+injection and modification using SRTP.<a href="#section-7-1" class="pilcrow">¶</a></p>
+<p id="section-7-2">In a more sophisticated attack, an attacker could selectively delay video
+packets in order to manipulate timings and make NDTC incorrectly estimate
+available path capacity. However, the combined congestion control should prevent
+NDTC to cause network congestion in that scenario.<a href="#section-7-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="iana-considerations">
-<section id="section-4">
+<section id="section-8">
       <h2 id="name-iana-considerations">
-<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
       </h2>
-<p id="section-4-1">This document has no IANA actions.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<p id="section-8-1">This document has no IANA actions.<a href="#section-8-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="sec-normative-references">
-<section id="section-5">
+<section id="section-9">
       <h2 id="name-normative-references">
-<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
       </h2>
 <dl class="references">
+<dt id="abs-send-time">[abs-send-time]</dt>
+      <dd>
+<span class="refTitle">"RTP Header Extension for Absolute Sender Time"</span>, <span>n.d.</span>, <span>&lt;<a href="http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time">http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="CAKE">[CAKE]</dt>
+      <dd>
+<span class="refTitle">"Cake - Common Applications Kept Enhanced"</span>, <span>n.d.</span>, <span>&lt;<a href="https://www.bufferbloat.net/projects/codel/wiki/Cake">https://www.bufferbloat.net/projects/codel/wiki/Cake</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="draft-alvestrand-rmcat-remb">[draft-alvestrand-rmcat-remb]</dt>
+      <dd>
+<span class="refAuthor">Alvestrand, H.</span>, <span class="refTitle">"RTCP message for Receiver Estimated Maximum Bitrate"</span>, <time datetime="2013-10-21" class="refDate">21 October 2013</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-alvestrand-rmcat-remb-03">https://datatracker.ietf.org/doc/html/draft-alvestrand-rmcat-remb-03</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="draft-briscoe-iccrg-prague-congestion-control">[draft-briscoe-iccrg-prague-congestion-control]</dt>
+      <dd>
+<span class="refAuthor">Schepper, K. D.</span>, <span class="refAuthor">Tilmans, O.</span>, <span class="refAuthor">Briscoe, B.</span>, and <span class="refAuthor">V. Goel</span>, <span class="refTitle">"Prague Congestion Control"</span>, <span>n.d.</span>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-briscoe-iccrg-prague-congestion-control-04">https://datatracker.ietf.org/doc/html/draft-briscoe-iccrg-prague-congestion-control-04</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="draft-holmer-rmcat-transport-wide-cc-extensions">[draft-holmer-rmcat-transport-wide-cc-extensions]</dt>
+      <dd>
+<span class="refAuthor">Holmer, S.</span>, <span class="refAuthor">Flodman, M.</span>, and <span class="refAuthor">E. Sprang</span>, <span class="refTitle">"RTP Extensions for Transport-wide Congestion Control"</span>, <time datetime="2015-10-19" class="refDate">19 October 2015</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-holmer-rmcat-transport-wide-cc-extensions-01">https://datatracker.ietf.org/doc/html/draft-holmer-rmcat-transport-wide-cc-extensions-01</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="NDTC-LCN">[NDTC-LCN]</dt>
+      <dd>
+<span class="refAuthor">Ageneau, P.-L.</span> and <span class="refAuthor">G. Armitage</span>, <span class="refTitle">"Network Delivery Time Control: a Novel Approach to Rate Adaptation for Low-Latency Video Flows"</span>, <span class="seriesInfo">IEEE 50th Conference on Local Computer Networks (LCN) </span>, <time datetime="2025-10-13" class="refDate">13 October 2025</time>, <span>&lt;<a href="https://ieeexplore.ieee.org/document/11146354">https://ieeexplore.ieee.org/document/11146354</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="RFC2119">[RFC2119]</dt>
       <dd>
 <span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2119">https://www.rfc-editor.org/rfc/rfc2119</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="RFC3550">[RFC3550]</dt>
+      <dd>
+<span class="refAuthor">Schulzrinne, H.</span>, <span class="refAuthor">Casner, S.</span>, <span class="refAuthor">Frederick, R.</span>, and <span class="refAuthor">V. Jacobson</span>, <span class="refTitle">"RTP: A Transport Protocol for Real-Time Applications"</span>, <span class="seriesInfo">STD 64</span>, <span class="seriesInfo">RFC 3550</span>, <span class="seriesInfo">DOI 10.17487/RFC3550</span>, <time datetime="2003-07" class="refDate">July 2003</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc3550">https://www.rfc-editor.org/rfc/rfc3550</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8083">[RFC8083]</dt>
+      <dd>
+<span class="refAuthor">Perkins, C.</span> and <span class="refAuthor">V. Singh</span>, <span class="refTitle">"Multimedia Congestion Control: Circuit Breakers for Unicast RTP Sessions"</span>, <span class="seriesInfo">RFC 8083</span>, <span class="seriesInfo">DOI 10.17487/RFC8083</span>, <time datetime="2017-03" class="refDate">March 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8083">https://www.rfc-editor.org/rfc/rfc8083</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="RFC8174">[RFC8174]</dt>
-    <dd>
+      <dd>
 <span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8174">https://www.rfc-editor.org/rfc/rfc8174</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8290">[RFC8290]</dt>
+      <dd>
+<span class="refAuthor">Hoeiland-Joergensen, T.</span>, <span class="refAuthor">McKenney, P.</span>, <span class="refAuthor">Taht, D.</span>, <span class="refAuthor">Gettys, J.</span>, and <span class="refAuthor">E. Dumazet</span>, <span class="refTitle">"The Flow Queue CoDel Packet Scheduler and Active Queue Management Algorithm"</span>, <span class="seriesInfo">RFC 8290</span>, <span class="seriesInfo">DOI 10.17487/RFC8290</span>, <time datetime="2018-01" class="refDate">January 2018</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8290">https://www.rfc-editor.org/rfc/rfc8290</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8888">[RFC8888]</dt>
+      <dd>
+<span class="refAuthor">Sarker, Z.</span>, <span class="refAuthor">Perkins, C.</span>, <span class="refAuthor">Singh, V.</span>, and <span class="refAuthor">M. Ramalho</span>, <span class="refTitle">"RTP Control Protocol (RTCP) Feedback for Congestion Control"</span>, <span class="seriesInfo">RFC 8888</span>, <span class="seriesInfo">DOI 10.17487/RFC8888</span>, <time datetime="2021-01" class="refDate">January 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8888">https://www.rfc-editor.org/rfc/rfc8888</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9330">[RFC9330]</dt>
+      <dd>
+<span class="refAuthor">Briscoe, B., Ed.</span>, <span class="refAuthor">De Schepper, K.</span>, <span class="refAuthor">Bagnulo, M.</span>, and <span class="refAuthor">G. White</span>, <span class="refTitle">"Low Latency, Low Loss, and Scalable Throughput (L4S) Internet Service: Architecture"</span>, <span class="seriesInfo">RFC 9330</span>, <span class="seriesInfo">DOI 10.17487/RFC9330</span>, <time datetime="2023-01" class="refDate">January 2023</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9330">https://www.rfc-editor.org/rfc/rfc9330</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9331">[RFC9331]</dt>
+    <dd>
+<span class="refAuthor">De Schepper, K.</span> and <span class="refAuthor">B. Briscoe, Ed.</span>, <span class="refTitle">"The Explicit Congestion Notification (ECN) Protocol for Low Latency, Low Loss, and Scalable Throughput (L4S)"</span>, <span class="seriesInfo">RFC 9331</span>, <span class="seriesInfo">DOI 10.17487/RFC9331</span>, <time datetime="2023-01" class="refDate">January 2023</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9331">https://www.rfc-editor.org/rfc/rfc9331</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
 </div>
-<div id="acknowledgments">
+<div id="ewma-implementation">
 <section id="appendix-A">
+      <h2 id="name-dual-variable-ewma-process-">
+<a href="#appendix-A" class="section-number selfRef">Appendix A. </a><a href="#name-dual-variable-ewma-process-" class="section-name selfRef">Dual-variable EWMA Process Implementation</a>
+      </h2>
+<p id="appendix-A-1">All variables are initialized at zero. When receiving a new sample
+<code>(NSEND, NRECV)</code>, the EWMA process <span class="bcp14">SHOULD</span> be updated as follow:<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="appendix-A-2">
+<pre>
+COUNT = COUNT + 1
+WEIGHT = max(LAMBDA, 1.0/COUNT)
+DELTA_NSEND = NSEND - AVG_NSEND
+DELTA_NRECV = NRECV - AVG_NRECV
+AVG_NSEND += WEIGHT * DELTA_NSEND
+AVG_NRECV += WEIGHT * DELTA_NRECV
+VAR_NSEND = (1 - WEIGHT) * (VAR_NSEND + WEIGHT * DELTA_NSEND^2)
+VAR_NRECV = (1 - WEIGHT) * (VAR_NRECV + WEIGHT * DELTA_NRECV^2)
+COVAR = (1 - WEIGHT) * (COVAR + WEIGHT * DELTA_NSEND * DELTA_NRECV)
+</pre><a href="#appendix-A-2" class="pilcrow">¶</a>
+</div>
+<p id="appendix-A-3"><code>COUNT</code> is also initialized at zero and the weight <code>1.0/COUNT</code> is used
+at the beginning to ensure initial values get equal weights and prevent
+the very first value from having an unreasonably large effect on the average.<a href="#appendix-A-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="estimate-implementation">
+<section id="appendix-B">
+      <h2 id="name-estimate-implementation">
+<a href="#appendix-B" class="section-number selfRef">Appendix B. </a><a href="#name-estimate-implementation" class="section-name selfRef">Estimate Implementation</a>
+      </h2>
+<p id="appendix-B-1"><code>ESTIMATE</code> is calculated step-by-step with <code>ITERATIONS</code> iterations, and the
+<span class="bcp14">RECOMMENDED</span> value for <code>ITERATIONS</code> is 3. In a CPU-constrained environment,
+for instance if NDTC runs for a very large number of parallel sessions,
+the loop <span class="bcp14">MAY</span> therefore be unrolled, making <code>ESTIMATE</code> linear according to
+<code>AVG_NRECV</code>:<a href="#appendix-B-1" class="pilcrow">¶</a></p>
+<p id="appendix-B-2"><code>
+ESTIMATE = SLOPE^3 * AVG_NRECV + (SLOPE^2 + SLOPE + 1) * INTERCEPT
+</code><a href="#appendix-B-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="aimd-implementation">
+<section id="appendix-C">
+      <h2 id="name-aimd-logic-implementation">
+<a href="#appendix-C" class="section-number selfRef">Appendix C. </a><a href="#name-aimd-logic-implementation" class="section-name selfRef">AIMD Logic Implementation</a>
+      </h2>
+<p id="appendix-C-1">On frame feedback, the agent <span class="bcp14">SHOULD</span> run the following AIMD logic to update
+the congestion frame size <code>CSIZE</code>:<a href="#appendix-C-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="appendix-C-2">
+<pre>
+ecn_gain = 1.0 / 16.0
+ecn_fraction = float(ecn_marking_count) / float(packet_count)
+ecn_average = ecn_gain * (ecn_fraction - ecn_average)
+
+// Multiplicative decrease
+if (last_decrease_time &gt; first_packet_send_time) {
+    // Suppress decrease for one round-trip
+} else if (packet_lost_count &gt; 0) {
+    // Loss decrease
+    CSIZE = min(CSIZE, CMAX) * BETA
+    last_decrease_time = now()
+} else if (last_ecn_decrease_time &lt; first_packet_send_time) {
+    // Suppress ECN decrease for one round-trip
+} else if (ecn_marking_count &gt; 0) {
+    // ECN decrease
+    CSIZE = min(CSIZE, CMAX) * (1.0 - ecn_average * (1.0 - BETA))
+    last_ecn_decrease_time = now()
+}
+
+// Additive increase (suppressed after loss but not ECN decrease)
+if (last_decrease_time &lt;= first_packet_send_time &amp;&amp; CSIZE &lt; CMAX) {
+    if (last_ecn_decrease_time &lt;= last_decrease_time) {
+        CSIZE = min(CSIZE + ALPHA, CMAX)
+    } else {
+        CSIZE = min(CSIZE + EALPHA * (1.0 - ecn_fraction), CMAX)
+    }
+}
+</pre><a href="#appendix-C-2" class="pilcrow">¶</a>
+</div>
+<p id="appendix-C-3">This algorithm uses logic close to a Prague congestion controller
+<span>[<a href="#draft-briscoe-iccrg-prague-congestion-control" class="cite xref">draft-briscoe-iccrg-prague-congestion-control</a>]</span>, it also uses
+the recommended ECN gain 1/16. For a new flow, <code>ecn_average</code>
+        <span class="bcp14">SHOULD</span> be initialized to 1.0.<a href="#appendix-C-3" class="pilcrow">¶</a></p>
+<p id="appendix-C-4">If ECN is not supported, the AIMD logic <span class="bcp14">MAY</span> be simplified to only the
+multiplicative decrease on packet loss (suppressed for one round-trip)
+and the additive increase otherwise.<a href="#appendix-C-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="acknowledgments">
+<section id="appendix-D">
       <h2 id="name-acknowledgments">
 <a href="#name-acknowledgments" class="section-name selfRef">Acknowledgments</a>
       </h2>
-<p id="appendix-A-1">TODO acknowledge.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+<p id="appendix-D-1">TODO<a href="#appendix-D-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="authors-addresses">
-<section id="appendix-B">
-      <h2 id="name-authors-address">
-<a href="#name-authors-address" class="section-name selfRef">Author's Address</a>
+<section id="appendix-E">
+      <h2 id="name-authors-addresses">
+<a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
       </h2>
 <address class="vcard">
-        <div dir="auto" class="left"><span class="fn nameRole">Your Name Here</span></div>
-<div dir="auto" class="left"><span class="org">Your Organization Here</span></div>
+        <div dir="auto" class="left"><span class="fn nameRole">Paul-Louis Ageneau</span></div>
+<div dir="auto" class="left"><span class="org">Netflix</span></div>
 <div class="email">
 <span>Email:</span>
-<a href="mailto:your.email@example.com" class="email">your.email@example.com</a>
+<a href="mailto:pageneau@netflix.com" class="email">pageneau@netflix.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Grenville Armitage</span></div>
+<div dir="auto" class="left"><span class="org">Netflix</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:garmitage@netflix.com" class="email">garmitage@netflix.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Scott Danahy</span></div>
+<div dir="auto" class="left"><span class="org">Netflix</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:sdanahy@netflix.com" class="email">sdanahy@netflix.com</a>
 </div>
 </address>
 </section>
