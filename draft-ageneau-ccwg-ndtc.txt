@@ -91,10 +91,11 @@ Table of Contents
      5.1.  Variables and Parameters
      5.2.  Frame Size Calculation
      5.3.  Loss Detection
-   6.  Active Queue Management Considerations
-   7.  Security Considerations
-   8.  IANA Considerations
-   9.  Normative References
+   6.  Fairness Considerations
+   7.  Active Queue Management Considerations
+   8.  Security Considerations
+   9.  IANA Considerations
+   10. Normative References
    Appendix A.  Dual-variable EWMA Process Implementation
    Appendix B.  Estimate Implementation
    Appendix C.  AIMD Logic Implementation
@@ -385,7 +386,7 @@ Table of Contents
    true in all scenarios.  FDACE does not require such a simple scenario
    and performs correctly in more complex network setups, for instance
    with more advanced AQM (Active Queue Management) disciplines (see
-   Section 6).
+   Section 7).
 
    The y-intercept INTERCEPT reflects the normalized receive duration
    that we would measure if the frame was sent as an unpaced burst,
@@ -794,7 +795,18 @@ Table of Contents
    Correction or retransmission.  Therefore, a frame triggering packet
    loss reaction may still be successfully transmitted.
 
-6.  Active Queue Management Considerations
+6.  Fairness Considerations
+
+   As NDTC does not attempt to maximize throughput, it also does not
+   attempt to achieve throughput fairness in general.  Targeting a
+   reception duration means that NDTC tends to yield to capacity
+   seeking-flows, but it does not get starved.
+
+   Thanks to its design, NDTC never takes more capacity than the
+   combined AIMD congestion control logic allows, so it is guaranteed
+   not to starve traditional capacity-seeking flows.
+
+7.  Active Queue Management Considerations
 
    As interactive flows in general, NDTC flows greatly benefit from AQM
    (Active Queue Management) disciplines.
@@ -812,7 +824,7 @@ Table of Contents
    flows.  An essential aspect is that NDTC can seemlessly transition
    between L4S and standard bottlenecks as the network path evolves.
 
-7.  Security Considerations
+8.  Security Considerations
 
    An attacker could insert, edit, or drop messages from the connection
    could cause NDTC to underutilizes the path capacity or overhsoot it,
@@ -825,11 +837,11 @@ Table of Contents
    congestion control should prevent NDTC to cause network congestion in
    that scenario.
 
-8.  IANA Considerations
+9.  IANA Considerations
 
    This document has no IANA actions.
 
-9.  Normative References
+10.  Normative References
 
    [abs-send-time]
               "RTP Header Extension for Absolute Sender Time", n.d.,
