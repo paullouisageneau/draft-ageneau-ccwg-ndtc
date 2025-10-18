@@ -4,16 +4,16 @@
 
 This is the working area for the individual Internet-Draft, "Network Delivery Time Control".
 
-* [Editor's Copy](https://paullouisageneau.github.io/draft-ndtc/#go.draft-ageneau-ccwg-ndtc.html)
+* [Editor's Copy](https://paullouisageneau.github.io/draft-ageneau-ccwg-ndtc/#go.draft-ageneau-ccwg-ndtc.html)
 * [Datatracker Page](https://datatracker.ietf.org/doc/draft-ageneau-ccwg-ndtc)
 * [Individual Draft](https://datatracker.ietf.org/doc/html/draft-ageneau-ccwg-ndtc)
-* [Compare Editor's Copy to Individual Draft](https://paullouisageneau.github.io/draft-ndtc/#go.draft-ageneau-ccwg-ndtc.diff)
+* [Compare Editor's Copy to Individual Draft](https://paullouisageneau.github.io/draft-ageneau-ccwg-ndtc/#go.draft-ageneau-ccwg-ndtc.diff)
 
 
 ## Contributing
 
 See the
-[guidelines for contributions](https://github.com/paullouisageneau/draft-ndtc/blob/main/CONTRIBUTING.md).
+[guidelines for contributions](https://github.com/paullouisageneau/draft-ageneau-ccwg-ndtc/blob/main/CONTRIBUTING.md).
 
 Contributions can be made by creating pull requests.
 The GitHub interface supports creating pull requests using the Edit (✏) button.

@@ -20,8 +20,8 @@ venue:
   type: "Working Group"
   mail: "ccwg@ietf.org"
   arch: "https://mailarchive.ietf.org/arch/browse/ccwg/"
-  github: "paullouisageneau/draft-ndtc"
-  latest: "https://paullouisageneau.github.io/draft-ndtc/draft-ageneau-ccwg-ndtc.html"
+  github: "paullouisageneau/draft-ageneau-ccwg-ndtc"
+  latest: "https://paullouisageneau.github.io/draft-ageneau-ccwg-ndtc/draft-ageneau-ccwg-ndtc.html"
 
 author:
  -
