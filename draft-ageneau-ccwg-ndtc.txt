@@ -5,8 +5,8 @@
 Congestion Control Working Group                              P. Ageneau
 Internet-Draft                                               G. Armitage
 Intended status: Informational                                 S. Danahy
-Expires: 20 April 2026                                           Netflix
-                                                         17 October 2025
+Expires: 21 April 2026                                           Netflix
+                                                         18 October 2025
 
 
                      Network Delivery Time Control
@@ -55,7 +55,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 20 April 2026.
+   This Internet-Draft will expire on 21 April 2026.
 
 Copyright Notice
 
@@ -98,7 +98,6 @@ Table of Contents
    Appendix A.  Dual-variable EWMA Process Implementation
    Appendix B.  Estimate Implementation
    Appendix C.  AIMD Logic Implementation
-   Acknowledgments
    Authors' Addresses
 
 1.  Introduction
@@ -977,10 +976,6 @@ Appendix C.  AIMD Logic Implementation
    If ECN is not supported, the AIMD logic MAY be simplified to only the
    multiplicative decrease on packet loss (suppressed for one round-
    trip) and the additive increase otherwise.
-
-Acknowledgments
-
-   TODO
 
 Authors' Addresses
 
