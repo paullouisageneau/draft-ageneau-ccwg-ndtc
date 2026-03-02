@@ -28,14 +28,14 @@ conventional congestion signals.
     Python 3.12.12
     ConfigArgParse 1.7
     google-i18n-address 3.1.1
-    intervaltree 3.1.0
+    intervaltree 3.2.1
     Jinja2 3.1.6
-    lxml 5.3.1
-    platformdirs 4.5.0
+    lxml 6.0.2
+    platformdirs 4.5.1
     pycountry 24.6.1
-    PyYAML 6.0.2
+    PyYAML 6.0.3
     requests 2.32.5
-    wcwidth 0.2.14
+    wcwidth 0.3.0
 -->
 <link href="draft-ageneau-ccwg-ndtc.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
@@ -176,7 +176,7 @@ conventional congestion signals.
   font-weight: 400;
   font-display: swap;
   src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin-ext.woff2') format('woff2');
-  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 @font-face {
   font-family: 'Oxygen Mono';
@@ -184,7 +184,8 @@ conventional congestion signals.
   font-weight: 400;
   font-display: swap;
   src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 }
 
 @font-face {
@@ -576,6 +577,7 @@ aside, blockquote {
 }
 blockquote {
   margin: 1em 0;
+  border-left: 2px var(--pilcrow-strong) solid;
 }
 cite {
   display: block;
@@ -646,7 +648,7 @@ a.pilcrow {
   }
 }
 @media not print {
-  :hover > a.pilcrow {
+  :hover > a.pilcrow, a.pilcrow:focus {
     opacity: 1;
   }
   a.pilcrow[href]:hover {
@@ -1054,11 +1056,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">NDTC</td>
-<td class="right">October 2025</td>
+<td class="right">March 2026</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Ageneau, et al.</td>
-<td class="center">Expires 21 April 2026</td>
+<td class="center">Expires 3 September 2026</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1071,12 +1073,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-ageneau-ccwg-ndtc-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2025-10-18" class="published">18 October 2025</time>
+<time datetime="2026-03-02" class="published">2 March 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2026-04-21">21 April 2026</time></dd>
+<dd class="expires"><time datetime="2026-09-03">3 September 2026</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1141,7 +1143,7 @@ conventional congestion signals.<a href="#section-abstract-1" class="pilcrow">¶
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 21 April 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 3 September 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1150,7 +1152,7 @@ conventional congestion signals.<a href="#section-abstract-1" class="pilcrow">¶
 <a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
         </h2>
 <p id="section-boilerplate.2-1">
-            Copyright (c) 2025 IETF Trust and the persons identified as the
+            Copyright (c) 2026 IETF Trust and the persons identified as the
             document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.2-2">
             This document is subject to BCP 78 and the IETF Trust's Legal
@@ -1186,7 +1188,7 @@ conventional congestion signals.<a href="#section-abstract-1" class="pilcrow">¶
                 <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-illustrating-using-rtp-rtcp" class="internal xref">Illustrating using RTP/RTCP</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2">
-                <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="auto internal xref">4.2</a>.  <a href="#name-architecture-considerations" class="internal xref">Architecture considerations</a></p>
+                <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="auto internal xref">4.2</a>.  <a href="#name-architecture-considerations" class="internal xref">Architecture Considerations</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2.2.1">
                     <p id="section-toc.1-1.4.2.2.2.1.1"><a href="#section-4.2.1" class="auto internal xref">4.2.1</a>.  <a href="#name-sender-side-agent" class="internal xref">Sender-side Agent</a></p>
@@ -1296,9 +1298,10 @@ selection in low-latency video applications.<a href="#section-1-4" class="pilcro
 runs the following loop:<a href="#section-1-5" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-1-6.1">
-          <p id="section-1-6.1.1">Pace out each video frame at between 1x and (on average) 2x our current
-estimate of available path capacity, in order to probe the network path for
-additional capacity while minimising burst load on network bottlenecks.<a href="#section-1-6.1.1" class="pilcrow">¶</a></p>
+          <p id="section-1-6.1.1">Pace each video frame's packets at a rate between 1x and 2x (on average)
+our current estimate of available path capacity, in order to probe the
+network path for additional capacity while minimising burst load on network
+bottlenecks.<a href="#section-1-6.1.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-1-6.2">
           <p id="section-1-6.2.1">Set the target frame size of the video encoder to a fraction of the
@@ -1337,7 +1340,7 @@ estimated path capacity.<a href="#section-3-1" class="pilcrow">¶</a></p>
 <p id="section-3-2">NDTC introduces and relies on Frame Dithering Available Capacity Estimation (FDACE),
 a heuristic that paces packetized frames over a dithered send duration and
 estimates available path capacity from the relationship between send
-durations and observed receive durations. Beneficially, capacity estimation is performed
+durations and observed receive durations. Importantly, capacity estimation is performed
 without injecting additional traffic (beyond the video stream we wish to deliver)
 or filling the path bottleneck to capacity. We then ensure that the flow uses only a
 fraction of the measured capacity to prevent risks of self-induced congestion.<a href="#section-3-2" class="pilcrow">¶</a></p>
@@ -1401,7 +1404,7 @@ mathematically-oriented names used in NDTC's conference paper <span>[<a href="#N
 protocols, this document illustrates the use of NDTC to support
 applications using RTP/RTCP <span>[<a href="#RFC3550" class="cite xref">RFC3550</a>]</span>.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
 <p id="section-4.1-2">In particular, NDTC operates on a single video stream and it is frame-oriented.
-References to a "frame" in the rest of this document means a sequence of
+References to a "frame" in the rest of this document mean a sequence of
 consecutive RTP packets having the same RTP timestamp and ending with a packet
 whose RTP header Mark bit is set.<a href="#section-4.1-2" class="pilcrow">¶</a></p>
 <p id="section-4.1-3">Defining a frame when NDTC is used for non-RTP flows
@@ -1411,15 +1414,15 @@ is currently outside the scope of this document.<a href="#section-4.1-3" class="
 <div id="architecture-considerations">
 <section id="section-4.2">
         <h3 id="name-architecture-considerations">
-<a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-architecture-considerations" class="section-name selfRef">Architecture considerations</a>
+<a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-architecture-considerations" class="section-name selfRef">Architecture Considerations</a>
         </h3>
-<p id="section-4.2-1">NDTC can be implemented both sender-side or receiver-side depending of the
+<p id="section-4.2-1">NDTC can be implemented both sender-side or receiver-side depending on the
 application's needs.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
 <p id="section-4.2-2">In the following discussion, the "agent" refers to the entity running the NDTC algorithm.
 A core requirement to execute FDACE is that, for every frame, the agent
 learns the precise durations over which a given frame was sent (<code>SEND</code>)
 and received (<code>RECV</code>). Recommendations for transmitting this timing information between
-senders and receivers is discussed in subsequent sections.<a href="#section-4.2-2" class="pilcrow">¶</a></p>
+senders and receivers are discussed in subsequent sections.<a href="#section-4.2-2" class="pilcrow">¶</a></p>
 <p id="section-4.2-3">If the agent is the sender, the algorithm runs on every frame feedback. If the
 agent is the receiver, the algorithm runs as soon as a frame is received and
 sends the updated target frame size (<code>TARGET</code>) to the server.<a href="#section-4.2-3" class="pilcrow">¶</a></p>
@@ -1435,7 +1438,7 @@ Transport-wide Congestion Control (TWCC) <span>[<a href="#draft-holmer-rmcat-tra
 reports. Alternatively, an implementor might introduce application-specific
 RTCP feedback to make messages smaller and achieve better precision.<a href="#section-4.2.1-1" class="pilcrow">¶</a></p>
 <p id="section-4.2.1-2">The receiver is also required to report which packets have not been received
-(as decribed in <a href="#loss" class="auto internal xref">Section 5.3</a>) and <span class="bcp14">SHOULD</span> also reflect Explicit Congestion Notification (ECN)
+(as described in <a href="#loss" class="auto internal xref">Section 5.3</a>) and <span class="bcp14">SHOULD</span> also reflect Explicit Congestion Notification (ECN)
 markings of received packets (if support for L4S is desired).<a href="#section-4.2.1-2" class="pilcrow">¶</a></p>
 <p id="section-4.2.1-3">In this scenario, the agent has local control of the underlying
 packet pacer and video encoder.<a href="#section-4.2.1-3" class="pilcrow">¶</a></p>
@@ -1461,8 +1464,8 @@ pacing heuristic <span class="bcp14">SHOULD</span> assume <code>SLOPE = 1</code>
 <a href="#section-4.2.3" class="section-number selfRef">4.2.3. </a><a href="#name-timing-and-timestamping" class="section-name selfRef">Timing and Timestamping</a>
           </h4>
 <p id="section-4.2.3-1">The precision with which <code>SEND</code> and <code>RECV</code> are measured and reported
-<span class="bcp14">MUST</span> be 1ms or better. Indeed, the durations are typically around a few
-milliseconds only, so a lower precision would not be sufficient to obtain a
+<span class="bcp14">MUST</span> be 1ms or better, because the durations are typically around a few
+milliseconds only, and a lower precision would not be sufficient to obtain a
 consistent estimate, even by averaging multiple samples.
 We RECOMMEND a precision of 0.1ms.<a href="#section-4.2.3-1" class="pilcrow">¶</a></p>
 <p id="section-4.2.3-2">If the agent is implemented sender-side, we assume the agent derives <code>SEND</code>
@@ -1491,8 +1494,8 @@ capacity expressed in terms of video bitrate.<a href="#section-4.3-2" class="pil
 <p id="section-4.3-3">If the frame consists of a single packet, if <code>LENGTH</code> is strictly less than
 <code>MIN_TARGET</code>, or if the frame suffered packet loss in the sense of <a href="#loss" class="auto internal xref">Section 5.3</a>,
 the agent does not run FDACE.
-Instead, it sets <code>TARGET</code> and <code>SLOPE</code> to the values calculated for the last
-frame without packet loss and immediately jumps to the AIMD congestion control
+Instead, it retains the <code>TARGET</code> and <code>SLOPE</code> values from the most recent frame
+for which FDACE ran and immediately jumps to the AIMD congestion control
 described in <a href="#congestion" class="auto internal xref">Section 4.5</a>.<a href="#section-4.3-3" class="pilcrow">¶</a></p>
 <p id="section-4.3-4">If the frame was packetized as 2 packets or more and suffered no packet loss,
 the agent first calculates the normalized send duration <code>NSEND</code> and the
@@ -1507,9 +1510,9 @@ NRECV = RECV / LENGTH
 </div>
 <p id="section-4.3-6">Send duration <code>SEND</code> corresponds to the elapsed time between sending the first
 packet and sending the last packet of the frame (i.e. the one with the RTP marker).
-It <span class="bcp14">MUST NOT</span> be the calculated send duration in <a href="#pacer" class="auto internal xref">Section 4.7</a> if different from the
-actual duration over which the pacer did send the frame.
-Packet send times <span class="bcp14">SHOULD</span> be measured as close as socket send calls as possible.<a href="#section-4.3-6" class="pilcrow">¶</a></p>
+<code>SEND</code> <span class="bcp14">MUST</span> be the actual duration over which the pacer sent the frame,
+not the calculated target duration from <a href="#pacer" class="auto internal xref">Section 4.7</a>.
+Packet send times <span class="bcp14">SHOULD</span> be measured as close to socket send calls as possible.<a href="#section-4.3-6" class="pilcrow">¶</a></p>
 <p id="section-4.3-7">Receive duration <code>RECV</code> corresponds to the elapsed time between reception of
 the first packet and reception of the last packet of the frame (i.e. the one
 with the RTP marker). Note there is no need for sender and receiver clock
@@ -1533,7 +1536,7 @@ EWMA process. The slope <code>SLOPE</code> and y-intercept <code>INTERCEPT</code
 equation <code>NRECV = SLOPE * NSEND + INTERCEPT</code> are calculated as follows:<a href="#section-4.3-9" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.3-10">
 <pre>
-if (VAR_NSEND &gt; 0.0) {
+if (VAR_NSEND &gt; 0.0 &amp;&amp; COVAR &gt; 0.0) {
     SLOPE = min(COVAR / VAR_NSEND, 1.0)
 } else {
     SLOPE = 0.0
@@ -1552,7 +1555,7 @@ the path capacity looking infinite.<a href="#section-4.3-12" class="pilcrow">¶<
 <p id="section-4.3-13">If there is no visible cross-traffic and the flow is alone at
 bottleneck, the slope <code>SLOPE</code> is 0, the send rate does not matter as we always
 receive at bottleneck rate.
-If cross-traffic takes most of the bottlneck capacity, <code>SLOPE</code> is close to 1.
+If cross-traffic takes most of the bottleneck capacity, <code>SLOPE</code> is close to 1.
 More generally, we can calculate that in a single FIFO bottleneck scenario
 with constant-rate cross traffic, <code>SLOPE</code> is the fraction of the bottleneck
 capacity occupied by cross-traffic. However, this statement does not hold
@@ -1581,18 +1584,20 @@ for (i = 0; i &lt; ITERATIONS; i++) {
 }
 </pre><a href="#section-4.3-17" class="pilcrow">¶</a>
 </div>
-<p id="section-4.3-18">This means that when the flow is not contrained and <code>SLOPE = 1</code>,
+<p id="section-4.3-18">This means that when the flow is not constrained and <code>SLOPE = 1</code>,
 <code>ESTIMATE = AVG_NRECV</code>, which is a conservative estimate for the capacity.<a href="#section-4.3-18" class="pilcrow">¶</a></p>
 <p id="section-4.3-19">For increased simplicity and performance in CPU-constrained environments,
 the loop <span class="bcp14">MAY</span> be unrolled as noted in <a href="#estimate-implementation" class="auto internal xref">Appendix B</a>.<a href="#section-4.3-19" class="pilcrow">¶</a></p>
 <p id="section-4.3-20">The agent <span class="bcp14">SHOULD</span> add a conservative margin <code>MARGIN</code> to <code>ESTIMATE</code>, increasing
-with the linear regression error. The <span class="bcp14">RECOMMENDED</span> formula to calculate <code>MARGIN</code>
-is to multiply a constant <code>KMARGIN</code> by the standard deviation of <code>NRECV</code> and to
-<code>1-R2</code> where <code>R2</code> is the coefficient of determination representing the proportion
-of variation in <code>NRECV</code> explained by the linear regression. The <span class="bcp14">RECOMMENDED</span> value
-for <code>KMARGIN</code> is 0.25. A value to close to 0 makes the algorithm react slower to
-abrupt changes. A value too high for k makes the algorithm significantly
-underestimate the capacity in the presence of bursty cross traffic.<a href="#section-4.3-20" class="pilcrow">¶</a></p>
+with the linear regression error. The idea is that when the model fits poorly,
+the agent should add a higher margin as a safety buffer.
+The <span class="bcp14">RECOMMENDED</span> formula to calculate <code>MARGIN</code> is to multiply a constant
+<code>KMARGIN</code> by the standard deviation of <code>NRECV</code> and <code>1-R2</code> where <code>R2</code> is the
+coefficient of determination representing the proportion of variation in
+<code>NRECV</code> explained by the linear regression. The <span class="bcp14">RECOMMENDED</span> value for <code>KMARGIN</code>
+is 0.25. A value too close to 0 makes the algorithm react slower to abrupt
+changes. A value too high for <code>KMARGIN</code> makes the algorithm significantly underestimate
+the capacity in the presence of bursty cross traffic.<a href="#section-4.3-20" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.3-21">
 <pre>
 if (VAR_NSEND &gt; 0.0 &amp;&amp; VAR_NRECV &gt; 0.0) {
@@ -1604,7 +1609,7 @@ if (VAR_NSEND &gt; 0.0 &amp;&amp; VAR_NRECV &gt; 0.0) {
 </pre><a href="#section-4.3-21" class="pilcrow">¶</a>
 </div>
 <p id="section-4.3-22">Available capacity <code>AVAILABLE</code> is calculated by taking the reciprocal of
-<code>ESTIMATE</code> plus <code>MARGIN</code>:<a href="#section-4.3-22" class="pilcrow">¶</a></p>
+the sum <code>ESTIMATE + MARGIN</code>:<a href="#section-4.3-22" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.3-23">
 <pre>
 AVAILABLE = 1.0 / (ESTIMATE + MARGIN)
@@ -1642,11 +1647,11 @@ realistically reach.<a href="#section-4.4-4" class="pilcrow">¶</a></p>
         <h3 id="name-combined-aimd-congestion-co">
 <a href="#section-4.5" class="section-number selfRef">4.5. </a><a href="#name-combined-aimd-congestion-co" class="section-name selfRef">Combined AIMD Congestion Control</a>
         </h3>
-<p id="section-4.5-1">Even if FDAC can successfully run on its own most of the time, it doesn't react
+<p id="section-4.5-1">Even if FDACE can successfully run on its own most of the time, it doesn't react
 to conventional indications of network congestion, in particular packet loss,
 whereas reacting to packet loss is essential in the presence of a policer on the
 path. Therefore, NDTC combines an AIMD (Additive Increase Multiplicative
-Decrease) process with FDAC to also adjust the frame size and send duration in
+Decrease) process with FDACE to also adjust the frame size and send duration in
 response to conventional congestion feedback. It allows the algorithm to
 seamlessly transition between capacity estimation and congestion signals,
 following the path evolution.<a href="#section-4.5-1" class="pilcrow">¶</a></p>
@@ -1687,7 +1692,7 @@ cases FDACE should be self-sufficient.<a href="#section-4.5-6" class="pilcrow">�
 and <code>CSIZE</code> is less than <code>CMAX</code>, the agent increases <code>CSIZE</code> by adding
 <code>ALPHA</code>, then caps the result to <code>CMAX</code>.
 The <span class="bcp14">RECOMMENDED</span> values are <code>ALPHA=40 bytes</code> and <code>BETA=0.7</code> to make increase
-and decrease relatively conservative and minimize QoE redution.<a href="#section-4.5-7" class="pilcrow">¶</a></p>
+and decrease relatively conservative and minimize QoE reduction.<a href="#section-4.5-7" class="pilcrow">¶</a></p>
 <p id="section-4.5-8">The AIMD logic <span class="bcp14">SHOULD NOT</span> feature a slow start phase and both decrease and
 increase <span class="bcp14">SHOULD</span> be suppressed for one round-trip after a loss event.
 In order to support L4S <span>[<a href="#RFC9330" class="cite xref">RFC9330</a>]</span>, the agent <span class="bcp14">SHOULD</span> also react similarly
@@ -1711,7 +1716,9 @@ CTARGET = min(CSIZE, CMAX)
 </pre><a href="#section-4.5-12" class="pilcrow">¶</a>
 </div>
 <p id="section-4.5-13">Then, <code>CSLOPE</code> is calculated such that the average pacing rate is
-<code>CTARGET/TRECV</code>:<a href="#section-4.5-13" class="pilcrow">¶</a></p>
+<code>CTARGET/TRECV</code>. This is obtained by solving for <code>CSLOPE</code> in the pacer
+equation in <a href="#pacer" class="auto internal xref">Section 4.7</a> such that when <code>LENGTH = TARGET</code>, the send
+duration results in an effective send rate of <code>CTARGET/TRECV</code>:<a href="#section-4.5-13" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.5-14">
 <pre>
 CSLOPE = max(1 - (TSEND/TRECV) * (CMAX/CTARGET), 0) / (1 - TSEND/TRECV)
@@ -1756,15 +1763,15 @@ will be packetized into 2 packets of significant size given a typical path MTU.<
 <p id="section-4.7-1">When a new video frame is generated at the sender, it is first packetized
 into RTP packets.
 The exact packetization process depends on video codec. The sender
-<span class="bcp14">SHOULD</span> first pad the frame to <code>MIN_FRAME</code> with codec-specific bitstream filler
-data if it is smaller. A frame of size <code>MIN_FRAME</code> or larger <span class="bcp14">MUST</span> be packetized
-in a least 2 packets. The sender <span class="bcp14">SHOULD</span> also attempt to packetize the frame
+<span class="bcp14">SHOULD</span> first pad the frame to <code>MIN_TARGET</code> with codec-specific bitstream filler
+data if it is smaller. A frame of size <code>MIN_TARGET</code> or larger <span class="bcp14">MUST</span> be packetized
+in at least 2 packets. The sender <span class="bcp14">SHOULD</span> also attempt to packetize the frame
 into packets of similar sizes. The sender <span class="bcp14">MAY</span> add RTP padding as specified
 in <span>[<a href="#RFC3550" class="cite xref">RFC3550</a>]</span> to help make packet sizes similar.<a href="#section-4.7-1" class="pilcrow">¶</a></p>
 <p id="section-4.7-2">The sender now calculates the desired send duration <code>SEND</code> for the frame.<a href="#section-4.7-2" class="pilcrow">¶</a></p>
 <p id="section-4.7-3">When not at bottleneck, the send duration is around target send duration <code>TSEND</code>.
 To ensure a positive feedback loop, <code>TSEND</code> <span class="bcp14">MUST</span> be strictly less than
-<code>TRECV</code>, the <span class="bcp14">RECOMMENDED</span> values is <code>TSEND = 0.5 * TRECV = 0.3 * TFRAME</code>.<a href="#section-4.7-3" class="pilcrow">¶</a></p>
+<code>TRECV</code>, the <span class="bcp14">RECOMMENDED</span> value is <code>TSEND = 0.5 * TRECV = 0.3 * TFRAME</code>.<a href="#section-4.7-3" class="pilcrow">¶</a></p>
 <p id="section-4.7-4">The sender first calculates the base pacing duration <code>PACE</code> by adding dithering of
 amplitude <code>DELTA</code> to <code>TSEND</code> and interpolating with <code>TRECV</code> according to
 <code>SLOPE</code>. The <span class="bcp14">RECOMMENDED</span> value for <code>DELTA</code> is <code>0.5*TSEND</code>.
@@ -1777,7 +1784,7 @@ PACE = SLOPE * (TSEND + rand() * DELTA) + (1 - SLOPE) * TRECV
 <p id="section-4.7-6">Adapting the duration according to <code>SLOPE</code> reduces how aggressively NDTC paces
 packets as the flow gets closer to filling the entire bottleneck.
 It makes the feedback loop run closer to the desired operating point and
-minimizes transient queueing for each frame.
+minimises transient queueing for each frame.
 It also helps FDACE by probing locally in non-linear scenarios and
 stabilizes competition with other NDTC flows.<a href="#section-4.7-6" class="pilcrow">¶</a></p>
 <p id="section-4.7-7">The sender then scales the pacing duration proportionally to <code>LENGTH/TARGET</code>,
@@ -1794,7 +1801,7 @@ SEND = min(PACE * LENGTH/TARGET, TFRAME)
 </div>
 <p id="section-4.7-9">The sender also calculates a frame alignment delay as follows to reduce frame
 jitter. The delay is calculated to compensate the send duration variation so
-the last packets of frames are received at the frame period.<a href="#section-4.7-9" class="pilcrow">¶</a></p>
+the last packets of frames are received at regular frame period intervals:<a href="#section-4.7-9" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.7-10">
 <pre>
 DELAY = SLOPE * max(PACE + SLOPE * DELTA - SEND, 0)
@@ -1807,8 +1814,8 @@ sent at <code>t + DELAY + SEND</code>. Other packets are spread evenly over the 
 <p id="section-4.7-12">To achieve this, the sender <span class="bcp14">SHOULD</span> wait for duration <code>DELAY</code>, then for each packet
 <code>p</code>, send it, then wait for an interval <code>SEND * SIZE(p) / LENGTH</code> where
 <code>SIZE(p)</code> is the payload size for packet p.
-The pacer <span class="bcp14">SHOULD</span> match send times with a absolute precision of at least 1ms.
-It <span class="bcp14">MUST</span> prevent cummulative errors from actual wait durations being different
+The pacer <span class="bcp14">SHOULD</span> match send times with an absolute precision of at least 1ms.
+It <span class="bcp14">MUST</span> prevent cumulative errors from actual wait durations being different
 from expected durations.<a href="#section-4.7-12" class="pilcrow">¶</a></p>
 <p id="section-4.7-13">If ECN is not supported, the pacer does not need to precisely pace packets
 besides the first and last one, and it <span class="bcp14">MAY</span> instead group packets in small
@@ -1964,6 +1971,14 @@ of the new frame.<a href="#section-4.7-17" class="pilcrow">¶</a></p>
               <td class="text-left" rowspan="1" colspan="1">-</td>
               <td class="text-left" rowspan="1" colspan="1">0.25</td>
             </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>TFRAME</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">video frame period</td>
+              <td class="text-left" rowspan="1" colspan="1">seconds</td>
+              <td class="text-left" rowspan="1" colspan="1">application-specific</td>
+            </tr>
           </tbody>
         </table>
 <p id="section-5.1-3">The following table summarizes variables used by the algorithm:<a href="#section-5.1-3" class="pilcrow">¶</a></p>
@@ -1995,7 +2010,7 @@ of the new frame.<a href="#section-4.7-17" class="pilcrow">¶</a></p>
               <td class="text-left" rowspan="1" colspan="1">
                 <code>TARGET</code>
 </td>
-              <td class="text-left" rowspan="1" colspan="1">target frame size from FDAC</td>
+              <td class="text-left" rowspan="1" colspan="1">target frame size from FDACE</td>
               <td class="text-left" rowspan="1" colspan="1">bytes</td>
             </tr>
             <tr>
@@ -2017,6 +2032,13 @@ of the new frame.<a href="#section-4.7-17" class="pilcrow">¶</a></p>
                 <code>CMAX</code>
 </td>
               <td class="text-left" rowspan="1" colspan="1">AIMD maximum frame size</td>
+              <td class="text-left" rowspan="1" colspan="1">bytes</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>CSIZE</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">AIMD frame size</td>
               <td class="text-left" rowspan="1" colspan="1">bytes</td>
             </tr>
             <tr>
@@ -2162,14 +2184,14 @@ sizes are the same.<a href="#section-5.2-4" class="pilcrow">¶</a></p>
 <a href="#section-5.3" class="section-number selfRef">5.3. </a><a href="#name-loss-detection" class="section-name selfRef">Loss Detection</a>
         </h3>
 <p id="section-5.3-1">Packet loss is taken into account to decide if FDACE should be run for a frame
-and to trigger AIMD decrease. Lost packet are detected by tracking
+and to trigger AIMD decrease. Lost packets are detected by tracking
 discontinuities in received sequence numbers.<a href="#section-5.3-1" class="pilcrow">¶</a></p>
 <p id="section-5.3-2">The receiver <span class="bcp14">SHOULD</span> reorder packets for the currently received frame (i.e.
-timestamp) to avoid misclassifiying reordered packets as lost. As soon as the
+timestamp) to avoid misclassifying reordered packets as lost. As soon as the
 first packet of the next frame (i.e. timestamp) is received, missing packets for
 the previous frame <span class="bcp14">MUST</span> be reported as lost. The receiver <span class="bcp14">MUST</span> consider a packet
 as lost in the context of this algorithm even if it can be recovered with
-Forwared Error Correction or retransmission. Therefore, a frame triggering
+Forward Error Correction or retransmission. Therefore, a frame triggering
 packet loss reaction may still be successfully transmitted.<a href="#section-5.3-2" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -2203,7 +2225,7 @@ Cake's DRR++ scheme additionally allows NDTC to have priority over bulk traffic.
 <p id="section-7-3">NDTC can also take advantage of L4S bottlenecks if the AIMD logic
 behaves as a Prague congestion controller like suggested in <a href="#aimd-implementation" class="auto internal xref">Appendix C</a>,
 providing fairness with TCP Prague and traditional TCP flows.
-An essential aspect is that NDTC can seemlessly transition between L4S and
+An essential aspect is that NDTC can seamlessly transition between L4S and
 standard bottlenecks as the network path evolves.<a href="#section-7-3" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -2212,14 +2234,14 @@ standard bottlenecks as the network path evolves.<a href="#section-7-3" class="p
       <h2 id="name-security-considerations">
 <a href="#section-8" class="section-number selfRef">8. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
       </h2>
-<p id="section-8-1">An attacker could insert, edit, or drop messages from the connection could cause
-NDTC to underutilizes the path capacity or overhsoot it, causing network
+<p id="section-8-1">An attacker who could insert, edit, or drop messages from the connection could
+cause NDTC to underutilize the path capacity or overshoot it, causing network
 congestion. The RTP flow and RTCP feedback should be protected from message
 injection and modification using SRTP.<a href="#section-8-1" class="pilcrow">¶</a></p>
 <p id="section-8-2">In a more sophisticated attack, an attacker could selectively delay video
 packets in order to manipulate timings and make NDTC incorrectly estimate
 available path capacity. However, the combined congestion control should prevent
-NDTC to cause network congestion in that scenario.<a href="#section-8-2" class="pilcrow">¶</a></p>
+NDTC from causing network congestion in that scenario.<a href="#section-8-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="iana-considerations">
@@ -2330,9 +2352,11 @@ the very first value from having an unreasonably large effect on the average.<a 
 for instance if NDTC runs for a very large number of parallel sessions,
 the loop <span class="bcp14">MAY</span> therefore be unrolled, making <code>ESTIMATE</code> linear according to
 <code>AVG_NRECV</code>:<a href="#appendix-B-1" class="pilcrow">¶</a></p>
-<p id="appendix-B-2"><code>
+<div class="alignLeft art-text artwork" id="appendix-B-2">
+<pre>
 ESTIMATE = SLOPE^3 * AVG_NRECV + (SLOPE^2 + SLOPE + 1) * INTERCEPT
-</code><a href="#appendix-B-2" class="pilcrow">¶</a></p>
+</pre><a href="#appendix-B-2" class="pilcrow">¶</a>
+</div>
 </section>
 </div>
 <div id="aimd-implementation">
@@ -2346,7 +2370,7 @@ the congestion frame size <code>CSIZE</code>:<a href="#appendix-C-1" class="pilc
 <pre>
 ecn_gain = 1.0 / 16.0
 ecn_fraction = float(ecn_marking_count) / float(packet_count)
-ecn_average = ecn_gain * (ecn_fraction - ecn_average)
+ecn_average += ecn_gain * (ecn_fraction - ecn_average)
 
 // Multiplicative decrease
 if (last_decrease_time &gt; first_packet_send_time) {
@@ -2355,7 +2379,7 @@ if (last_decrease_time &gt; first_packet_send_time) {
     // Loss decrease
     CSIZE = min(CSIZE, CMAX) * BETA
     last_decrease_time = now()
-} else if (last_ecn_decrease_time &lt; first_packet_send_time) {
+} else if (last_ecn_decrease_time &gt; first_packet_send_time) {
     // Suppress ECN decrease for one round-trip
 } else if (ecn_marking_count &gt; 0) {
     // ECN decrease
