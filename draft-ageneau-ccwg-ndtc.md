@@ -814,7 +814,7 @@ the congestion frame size `CSIZE`:
 ~~~
 ecn_gain = 1.0 / 16.0
 ecn_fraction = float(ecn_marking_count) / float(packet_count)
-ecn_average = ecn_gain * (ecn_fraction - ecn_average)
+ecn_average += ecn_gain * (ecn_fraction - ecn_average)
 
 // Multiplicative decrease
 if (last_decrease_time > first_packet_send_time) {
@@ -823,7 +823,7 @@ if (last_decrease_time > first_packet_send_time) {
     // Loss decrease
     CSIZE = min(CSIZE, CMAX) * BETA
     last_decrease_time = now()
-} else if (last_ecn_decrease_time < first_packet_send_time) {
+} else if (last_ecn_decrease_time > first_packet_send_time) {
     // Suppress ECN decrease for one round-trip
 } else if (ecn_marking_count > 0) {
     // ECN decrease
