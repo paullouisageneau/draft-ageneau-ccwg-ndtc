@@ -124,9 +124,10 @@ selection in low-latency video applications.
 At a very high level, when NDTC is applied to cloud gaming it continuously
 runs the following loop:
 
-- Pace out each video frame at between 1x and (on average) 2x our current
-estimate of available path capacity, in order to probe the network path for
-additional capacity while minimising burst load on network bottlenecks.
+- Pace each video frame's packets at a rate between 1x and 2x (on average)
+our current estimate of available path capacity, in order to probe the
+network path for additional capacity while minimising burst load on network
+bottlenecks.
 
 - Set the target frame size of the video encoder to a fraction of the
 available capacity estimate, thus keeping frame delivery latencies low.
@@ -153,7 +154,7 @@ estimated path capacity.
 NDTC introduces and relies on Frame Dithering Available Capacity Estimation (FDACE),
 a heuristic that paces packetized frames over a dithered send duration and
 estimates available path capacity from the relationship between send
-durations and observed receive durations. Beneficially, capacity estimation is performed
+durations and observed receive durations. Importantly, capacity estimation is performed
 without injecting additional traffic (beyond the video stream we wish to deliver)
 or filling the path bottleneck to capacity. We then ensure that the flow uses only a
 fraction of the measured capacity to prevent risks of self-induced congestion.
@@ -209,28 +210,27 @@ protocols, this document illustrates the use of NDTC to support
 applications using RTP/RTCP {{!RFC3550}}.
 
 In particular, NDTC operates on a single video stream and it is frame-oriented.
-References to a "frame" in the rest of this document means a sequence of
+References to a "frame" in the rest of this document mean a sequence of
 consecutive RTP packets having the same RTP timestamp and ending with a packet
 whose RTP header Mark bit is set.
 
 Defining a frame when NDTC is used for non-RTP flows
 is currently outside the scope of this document.
 
-## Architecture considerations
+## Architecture Considerations
 
-NDTC can be implemented both sender-side or receiver-side depending of the
+NDTC can be implemented both sender-side or receiver-side depending on the
 application's needs.
 
 In the following discussion, the "agent" refers to the entity running the NDTC algorithm.
 A core requirement to execute FDACE is that, for every frame, the agent
 learns the precise durations over which a given frame was sent (`SEND`)
 and received (`RECV`). Recommendations for transmitting this timing information between
-senders and receivers is discussed in subsequent sections.
+senders and receivers are discussed in subsequent sections.
 
 If the agent is the sender, the algorithm runs on every frame feedback. If the
 agent is the receiver, the algorithm runs as soon as a frame is received and
 sends the updated target frame size (`TARGET`) to the server.
-
 
 ### Sender-side Agent
 
@@ -242,7 +242,7 @@ reports. Alternatively, an implementor might introduce application-specific
 RTCP feedback to make messages smaller and achieve better precision.
 
 The receiver is also required to report which packets have not been received
-(as decribed in {{loss}}) and SHOULD also reflect Explicit Congestion Notification (ECN)
+(as described in {{loss}}) and SHOULD also reflect Explicit Congestion Notification (ECN)
 markings of received packets (if support for L4S is desired).
 
 In this scenario, the agent has local control of the underlying
@@ -262,8 +262,8 @@ pacing heuristic SHOULD assume `SLOPE = 1`.
 ### Timing and Timestamping
 
 The precision with which `SEND` and `RECV` are measured and reported
-MUST be 1ms or better. Indeed, the durations are typically around a few
-milliseconds only, so a lower precision would not be sufficient to obtain a
+MUST be 1ms or better, because the durations are typically around a few
+milliseconds only, and a lower precision would not be sufficient to obtain a
 consistent estimate, even by averaging multiple samples.
 We RECOMMEND a precision of 0.1ms.
 
@@ -290,8 +290,8 @@ capacity expressed in terms of video bitrate.
 If the frame consists of a single packet, if `LENGTH` is strictly less than
 `MIN_TARGET`, or if the frame suffered packet loss in the sense of {{loss}},
 the agent does not run FDACE.
-Instead, it sets `TARGET` and `SLOPE` to the values calculated for the last
-frame without packet loss and immediately jumps to the AIMD congestion control
+Instead, it retains the `TARGET` and `SLOPE` values from the most recent frame
+for which FDACE ran and immediately jumps to the AIMD congestion control
 described in {{congestion}}.
 
 If the frame was packetized as 2 packets or more and suffered no packet loss,
@@ -307,9 +307,9 @@ NRECV = RECV / LENGTH
 
 Send duration `SEND` corresponds to the elapsed time between sending the first
 packet and sending the last packet of the frame (i.e. the one with the RTP marker).
-It MUST NOT be the calculated send duration in {{pacer}} if different from the
-actual duration over which the pacer did send the frame.
-Packet send times SHOULD be measured as close as socket send calls as possible.
+`SEND` MUST be the actual duration over which the pacer sent the frame,
+not the calculated target duration from {{pacer}}.
+Packet send times SHOULD be measured as close to socket send calls as possible.
 
 Receive duration `RECV` corresponds to the elapsed time between reception of
 the first packet and reception of the last packet of the frame (i.e. the one
@@ -357,7 +357,7 @@ the path capacity looking infinite.
 If there is no visible cross-traffic and the flow is alone at
 bottleneck, the slope `SLOPE` is 0, the send rate does not matter as we always
 receive at bottleneck rate.
-If cross-traffic takes most of the bottlneck capacity, `SLOPE` is close to 1.
+If cross-traffic takes most of the bottleneck capacity, `SLOPE` is close to 1.
 More generally, we can calculate that in a single FIFO bottleneck scenario
 with constant-rate cross traffic, `SLOPE` is the fraction of the bottleneck
 capacity occupied by cross-traffic. However, this statement does not hold
@@ -368,6 +368,7 @@ advanced AQM (Active Queue Management) disciplines (see {{aqm}}).
 The y-intercept `INTERCEPT` reflects the normalized receive duration that we
 would measure if the frame was sent as an unpaced burst, reflecting total path
 capacity.
+
 
 The agent extrapolates `ESTIMATE`, the normalized reception duration that we
 would measure if the frame was sent at receive rate, reflecting available
@@ -389,20 +390,22 @@ for (i = 0; i < ITERATIONS; i++) {
 }
 ~~~
 
-This means that when the flow is not contrained and `SLOPE = 1`,
+This means that when the flow is not constrained and `SLOPE = 1`,
 `ESTIMATE = AVG_NRECV`, which is a conservative estimate for the capacity.
 
 For increased simplicity and performance in CPU-constrained environments,
 the loop MAY be unrolled as noted in {{estimate-implementation}}.
 
 The agent SHOULD add a conservative margin `MARGIN` to `ESTIMATE`, increasing
-with the linear regression error. The RECOMMENDED formula to calculate `MARGIN`
-is to multiply a constant `KMARGIN` by the standard deviation of `NRECV` and to
-`1-R2` where `R2` is the coefficient of determination representing the proportion
-of variation in `NRECV` explained by the linear regression. The RECOMMENDED value
-for `KMARGIN` is 0.25. A value to close to 0 makes the algorithm react slower to
-abrupt changes. A value too high for k makes the algorithm significantly
-underestimate the capacity in the presence of bursty cross traffic.
+with the linear regression error. The idea is that when the model fits poorly,
+the agent should add a higher margin as a safety buffer.
+The RECOMMENDED formula to calculate `MARGIN` is to multiply a constant
+`KMARGIN` by the standard deviation of `NRECV` and `1-R2` where `R2` is the
+coefficient of determination representing the proportion of variation in
+`NRECV` explained by the linear regression. The RECOMMENDED value for `KMARGIN`
+is 0.25. A value too close to 0 makes the algorithm react slower to abrupt
+changes. A value too high for `KMARGIN` makes the algorithm significantly underestimate
+the capacity in the presence of bursty cross traffic.
 
 ~~~
 if (VAR_NSEND > 0.0 && VAR_NRECV > 0.0) {
@@ -414,7 +417,7 @@ if (VAR_NSEND > 0.0 && VAR_NRECV > 0.0) {
 ~~~
 
 Available capacity `AVAILABLE` is calculated by taking the reciprocal of
-`ESTIMATE` plus `MARGIN`:
+the sum `ESTIMATE + MARGIN`:
 
 ~~~
 AVAILABLE = 1.0 / (ESTIMATE + MARGIN)
@@ -444,11 +447,11 @@ realistically reach.
 
 ## Combined AIMD Congestion Control {#congestion}
 
-Even if FDAC can successfully run on its own most of the time, it doesn't react
+Even if FDACE can successfully run on its own most of the time, it doesn't react
 to conventional indications of network congestion, in particular packet loss,
 whereas reacting to packet loss is essential in the presence of a policer on the
 path. Therefore, NDTC combines an AIMD (Additive Increase Multiplicative
-Decrease) process with FDAC to also adjust the frame size and send duration in
+Decrease) process with FDACE to also adjust the frame size and send duration in
 response to conventional congestion feedback. It allows the algorithm to
 seamlessly transition between capacity estimation and congestion signals,
 following the path evolution.
@@ -485,7 +488,7 @@ If one or more packets were lost, the agent performs a decrease by capping
 and `CSIZE` is less than `CMAX`, the agent increases `CSIZE` by adding
 `ALPHA`, then caps the result to `CMAX`.
 The RECOMMENDED values are `ALPHA=40 bytes` and `BETA=0.7` to make increase
-and decrease relatively conservative and minimize QoE redution.
+and decrease relatively conservative and minimize QoE reduction.
 
 The AIMD logic SHOULD NOT feature a slow start phase and both decrease and
 increase SHOULD be suppressed for one round-trip after a loss event.
@@ -513,7 +516,9 @@ CTARGET = min(CSIZE, CMAX)
 ~~~
 
 Then, `CSLOPE` is calculated such that the average pacing rate is
-`CTARGET/TRECV`:
+`CTARGET/TRECV`. This is obtained by solving for `CSLOPE` in the pacer
+equation in {{pacer}} such that when `LENGTH = TARGET`, the send
+duration results in an effective send rate of `CTARGET/TRECV`:
 
 ~~~
 CSLOPE = max(1 - (TSEND/TRECV) * (CMAX/CTARGET), 0) / (1 - TSEND/TRECV)
@@ -550,9 +555,9 @@ The sender SHOULD set the encoder target frame size to `TARGET` as soon as possi
 When a new video frame is generated at the sender, it is first packetized
 into RTP packets.
 The exact packetization process depends on video codec. The sender
-SHOULD first pad the frame to `MIN_FRAME` with codec-specific bitstream filler
-data if it is smaller. A frame of size `MIN_FRAME` or larger MUST be packetized
-in a least 2 packets. The sender SHOULD also attempt to packetize the frame
+SHOULD first pad the frame to `MIN_TARGET` with codec-specific bitstream filler
+data if it is smaller. A frame of size `MIN_TARGET` or larger MUST be packetized
+in at least 2 packets. The sender SHOULD also attempt to packetize the frame
 into packets of similar sizes. The sender MAY add RTP padding as specified
 in {{!RFC3550}} to help make packet sizes similar.
 
@@ -560,7 +565,7 @@ The sender now calculates the desired send duration `SEND` for the frame.
 
 When not at bottleneck, the send duration is around target send duration `TSEND`.
 To ensure a positive feedback loop, `TSEND` MUST be strictly less than
-`TRECV`, the RECOMMENDED values is `TSEND = 0.5 * TRECV = 0.3 * TFRAME`.
+`TRECV`, the RECOMMENDED value is `TSEND = 0.5 * TRECV = 0.3 * TFRAME`.
 
 The sender first calculates the base pacing duration `PACE` by adding dithering of
 amplitude `DELTA` to `TSEND` and interpolating with `TRECV` according to
@@ -574,7 +579,7 @@ PACE = SLOPE * (TSEND + rand() * DELTA) + (1 - SLOPE) * TRECV
 Adapting the duration according to `SLOPE` reduces how aggressively NDTC paces
 packets as the flow gets closer to filling the entire bottleneck.
 It makes the feedback loop run closer to the desired operating point and
-minimizes transient queueing for each frame.
+minimises transient queueing for each frame.
 It also helps FDACE by probing locally in non-linear scenarios and
 stabilizes competition with other NDTC flows.
 
@@ -592,7 +597,7 @@ SEND = min(PACE * LENGTH/TARGET, TFRAME)
 
 The sender also calculates a frame alignment delay as follows to reduce frame
 jitter. The delay is calculated to compensate the send duration variation so
-the last packets of frames are received at the frame period.
+the last packets of frames are received at regular frame period intervals:
 
 ~~~
 DELAY = SLOPE * max(PACE + SLOPE * DELTA - SEND, 0)
@@ -606,8 +611,8 @@ sent at `t + DELAY + SEND`. Other packets are spread evenly over the interval.
 To achieve this, the sender SHOULD wait for duration `DELAY`, then for each packet
 `p`, send it, then wait for an interval `SEND * SIZE(p) / LENGTH` where
 `SIZE(p)` is the payload size for packet p.
-The pacer SHOULD match send times with a absolute precision of at least 1ms.
-It MUST prevent cummulative errors from actual wait durations being different
+The pacer SHOULD match send times with an absolute precision of at least 1ms.
+It MUST prevent cumulative errors from actual wait durations being different
 from expected durations.
 
 If ECN is not supported, the pacer does not need to precisely pace packets
@@ -659,6 +664,7 @@ The following table summarizes parameters used by the algorithm:
 | `DELTA` | send dithering amplitude | seconds | `0.5 * TSEND` |
 | `LAMBDA` | regression EWMA weight | - | 0.04 |
 | `KMARGIN` | estimation margin constant | - | 0.25 |
+| `TFRAME` | video frame period | seconds | application-specific |
 
 The following table summarizes variables used by the algorithm:
 
@@ -666,10 +672,11 @@ The following table summarizes variables used by the algorithm:
 |----------|-------------|------|
 | `AVAILABLE` | estimated available capacity | bytes/second |
 | `DELAY` | pacing alignment delay | seconds |
-| `TARGET` | target frame size from FDAC | bytes |
+| `TARGET` | target frame size from FDACE | bytes |
 | `CTARGET` | target frame size from AIMD | bytes |
 | `LENGTH` | actual frame size | bytes |
 | `CMAX` | AIMD maximum frame size | bytes |
+| `CSIZE` | AIMD frame size | bytes |
 | `PACE` | base pacing duration | seconds |
 | `SEND` | send duration for the frame | seconds |
 | `RECV` | receive duration for the frame | seconds |
@@ -716,15 +723,15 @@ sizes are the same.
 ## Loss Detection {#loss}
 
 Packet loss is taken into account to decide if FDACE should be run for a frame
-and to trigger AIMD decrease. Lost packet are detected by tracking
+and to trigger AIMD decrease. Lost packets are detected by tracking
 discontinuities in received sequence numbers.
 
 The receiver SHOULD reorder packets for the currently received frame (i.e.
-timestamp) to avoid misclassifiying reordered packets as lost. As soon as the
+timestamp) to avoid misclassifying reordered packets as lost. As soon as the
 first packet of the next frame (i.e. timestamp) is received, missing packets for
 the previous frame MUST be reported as lost. The receiver MUST consider a packet
 as lost in the context of this algorithm even if it can be recovered with
-Forwared Error Correction or retransmission. Therefore, a frame triggering
+Forward Error Correction or retransmission. Therefore, a frame triggering
 packet loss reaction may still be successfully transmitted.
 
 # Fairness Considerations {#fairness}
@@ -751,20 +758,20 @@ Cake's DRR++ scheme additionally allows NDTC to have priority over bulk traffic.
 NDTC can also take advantage of L4S bottlenecks if the AIMD logic
 behaves as a Prague congestion controller like suggested in {{aimd-implementation}},
 providing fairness with TCP Prague and traditional TCP flows.
-An essential aspect is that NDTC can seemlessly transition between L4S and
+An essential aspect is that NDTC can seamlessly transition between L4S and
 standard bottlenecks as the network path evolves.
 
 # Security Considerations {#security}
 
-An attacker could insert, edit, or drop messages from the connection could cause
-NDTC to underutilizes the path capacity or overhsoot it, causing network
+An attacker who could insert, edit, or drop messages from the connection could
+cause NDTC to underutilize the path capacity or overshoot it, causing network
 congestion. The RTP flow and RTCP feedback should be protected from message
 injection and modification using SRTP.
 
 In a more sophisticated attack, an attacker could selectively delay video
 packets in order to manipulate timings and make NDTC incorrectly estimate
 available path capacity. However, the combined congestion control should prevent
-NDTC to cause network congestion in that scenario.
+NDTC from causing network congestion in that scenario.
 
 # IANA Considerations
 
@@ -802,9 +809,9 @@ for instance if NDTC runs for a very large number of parallel sessions,
 the loop MAY therefore be unrolled, making `ESTIMATE` linear according to
 `AVG_NRECV`:
 
-```
+~~~
 ESTIMATE = SLOPE^3 * AVG_NRECV + (SLOPE^2 + SLOPE + 1) * INTERCEPT
-```
+~~~
 
 # AIMD Logic Implementation {#aimd-implementation}
 
