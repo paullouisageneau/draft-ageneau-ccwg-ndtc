@@ -336,7 +336,7 @@ EWMA process. The slope `SLOPE` and y-intercept `INTERCEPT` of the linear
 equation `NRECV = SLOPE * NSEND + INTERCEPT` are calculated as follows:
 
 ~~~
-if (VAR_NSEND > 0.0) {
+if (VAR_NSEND > 0.0 && COVAR > 0.0) {
     SLOPE = min(COVAR / VAR_NSEND, 1.0)
 } else {
     SLOPE = 0.0
