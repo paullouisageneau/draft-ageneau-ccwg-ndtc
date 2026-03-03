@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-03-01T01:53:28.553355+00:00",
+  "timestamp": "2026-03-03T01:47:50.152456+00:00",
   "repo": "paullouisageneau/draft-ageneau-ccwg-ndtc",
   "labels": [
     {
@@ -50,5 +50,34 @@
     }
   ],
   "issues": [],
-  "pulls": []
+  "pulls": [
+    {
+      "number": 1,
+      "id": "PR_kwDOO-Ayy87HVzlI",
+      "title": "Fixes and enhancements",
+      "url": "https://github.com/paullouisageneau/draft-ageneau-ccwg-ndtc/pull/1",
+      "state": "MERGED",
+      "author": "paullouisageneau",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "This PR fixes three errors in the draft:\r\n- A covariance check was missing when calculating the slope\r\n- `ecn_average` calculation had \"=\" instead of \"+=\"\r\n- ECN decrease suppression condition was incorrect\r\n\r\nIt also clarifies a few things, enhances wording, and fixes typos.",
+      "createdAt": "2026-03-02T14:00:14Z",
+      "updatedAt": "2026-03-02T18:48:27Z",
+      "baseRepository": "paullouisageneau/draft-ageneau-ccwg-ndtc",
+      "baseRefName": "main",
+      "baseRefOid": "33cd7f697650700975d7659dafb2103d9c37ea27",
+      "headRepository": "paullouisageneau/draft-ageneau-ccwg-ndtc",
+      "headRefName": "fixes-and-enhancements",
+      "headRefOid": "73abfebfad60606896329e5fa3c82514f91b1e58",
+      "closedAt": "2026-03-02T18:48:23Z",
+      "mergedAt": "2026-03-02T18:48:23Z",
+      "mergedBy": "paullouisageneau",
+      "mergeCommit": {
+        "oid": "9bccb2b5eec7050237907225969af5de1879d97b"
+      },
+      "comments": [],
+      "reviews": []
+    }
+  ]
 }
