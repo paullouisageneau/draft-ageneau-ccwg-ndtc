@@ -288,7 +288,7 @@ Therefore `AVAILABLE` will actually refer to application-layer
 capacity expressed in terms of video bitrate.
 
 If the frame consists of a single packet, if `LENGTH` is strictly less than
-`MIN_TARGET`, or if the frame suffered packet loss in the sense of {{loss}},
+`MIN_LENGTH`, or if the frame suffered packet loss in the sense of {{loss}},
 the agent does not run FDACE.
 Instead, it retains the `TARGET` and `SLOPE` values from the most recent frame
 for which FDACE ran and immediately jumps to the AIMD congestion control
@@ -655,6 +655,7 @@ The following table summarizes parameters used by the algorithm:
 | `MIN_TARGET` | minimum target frame size | bytes | 2000 |
 | `MAX_TARGET` | maximum target frame size | bytes | - |
 | `INIT_TARGET` | initial target frame size | bytes | `<= MAX_TARGET/2` |
+| `MIN_LENGTH` | minimum frame length to run FDACE | bytes | `MIN_TARGET/2` |
 | `TRECV` | target receive duration | seconds | `0.6 * TFRAME` |
 | `TSEND` | target send duration | seconds | `0.5 * TRECV` |
 | `ITERATIONS` | extrapolation iterations | - | 3 |
@@ -714,6 +715,9 @@ When running FDACE, the agent does not know how the path exactly handles packets
 so it can't know for sure which payload to exclude at reception.
 Therefore, in the context of FDACE, the agent SHOULD calculate `LENGTH` as the sum
 of all payloads of the frame minus the average size of the first and last one.
+It means that if the frame consists in two packets, `LENGTH` is half the sum of
+the two payloads, i.e. the average packet size. This is why `MIN_LENGTH` should
+be set to `MIN_TARGET/2`.
 If the frame consists of a single packet, `LENGTH` is the size of the packet.
 
 Note that if the frame is packetized into packets of similar sizes as
