@@ -547,6 +547,13 @@ to run FDACE and update `TARGET`.
 The RECOMMENDED value for `MIN_TARGET` is 2000 bytes as a frame of such a size
 will be packetized into 2 packets of significant size given a typical path MTU.
 
+Note that the flow becomes unresponsive to congestion when the target frame size
+is at `MIN_TARGET` (at 30fps, 2000 bytes correspond to 480Kbps), therefore,
+care should be taken not to set this value too high as it could harm other flows.
+This is particularly a concern in an L4S context, where the consideration is
+similar to the fractional window tradeoff for a Prague congestion controller
+[draft-briscoe-iccrg-prague-congestion-control].
+
 The sender SHOULD set the encoder target frame size to `TARGET` as soon as possible
 (i.e. the encoder target bitrate is set to `TARGET/TFRAME`).
 
@@ -776,6 +783,11 @@ In a more sophisticated attack, an attacker could selectively delay video
 packets in order to manipulate timings and make NDTC incorrectly estimate
 available path capacity. However, the combined congestion control should prevent
 NDTC from causing network congestion in that scenario.
+
+When using L4S, this draft inherits the security considerations discussed in
+[RFC9330]. In particular, network operators might choose to restrict or police
+L4S flows. Additionally, `MIN_TARGET` should be set low enough to ensure NDTC
+flows are responsive enough not to cause a queue to build up.
 
 # IANA Considerations
 
