@@ -126,7 +126,7 @@ runs the following loop:
 
 - Pace each video frame's packets at a rate between 1x and 2x (on average)
 our current estimate of available path capacity, in order to probe the
-network path for additional capacity while minimising burst load on network
+network path for additional capacity while minimizing burst load on network
 bottlenecks.
 
 - Set the target frame size of the video encoder to a fraction of the
@@ -144,7 +144,7 @@ upper bound on the next encoded video frame's size.
 
 A key requirement for real-time video is ensuring
 each frame arrives on time to be presented. Consequently,
-NDTC focuses on timely frame delivery rather than attempting to maximise throughput.
+NDTC focuses on timely frame delivery rather than attempting to maximize throughput.
 NDTC aims to ensure each frame reception duration is shorter than a frame period,
 providing sufficient headroom to ensure high probability of each frame arriving in time.
 In practice, the control loop of the algorithm stabilizes the frame reception
@@ -182,7 +182,7 @@ stabilized around target reception duration `TRECV`.
 - Additionally, `TARGET` is capped by a combined AIMD process reacting to congestion
 signals like packet loss and ECN.
 
-To properly probe the path, `TSEND` MUST be a fraction of `TRECV`, and to minimise on-path
+To properly probe the path, `TSEND` MUST be a fraction of `TRECV`, and to minimize on-path
 congestion, `TRECV` MUST be a fraction of `TFRAME`.
 We RECOMMEND that `TRECV = 0.6 * TFRAME` and `TSEND = 0.5 * TRECV`.
 (For example, sending at 30fps would result in `TFRAME = 33ms`, `TRECV = 20ms`
@@ -224,7 +224,7 @@ the scope of this document.
 
 ## Architecture Considerations
 
-NDTC can be implemented both sender-side or receiver-side depending on the
+NDTC can be implemented either sender-side or receiver-side depending on the
 application's needs.
 
 In the following discussion, the "agent" refers to the entity running the NDTC algorithm.
@@ -591,13 +591,13 @@ PACE = SLOPE * (TSEND + rand() * DELTA) + (1 - SLOPE) * TRECV
 Adapting the duration according to `SLOPE` reduces how aggressively NDTC paces
 packets as the flow gets closer to filling the entire bottleneck.
 It makes the feedback loop run closer to the desired operating point and
-minimises transient queueing for each frame.
+minimizes transient queueing for each frame.
 It also helps FDACE by probing locally in non-linear scenarios and
 stabilizes competition with other NDTC flows.
 
 The sender then scales the pacing duration proportionally to `LENGTH/TARGET`,
 where the frame size `LENGTH` is calculated according to {{framesize}}.
-This helps sustaining the send rate when the encoder produces frames that don't
+This helps sustain the send rate when the encoder produces frames that don't
 match the target frame size. For instance, the encoder may chronically
 underproduce because the video is not dynamic or complex enough, and
 it may temporarily overproduce on scene change.
@@ -762,7 +762,7 @@ capacity-seeking flows.
 
 # Active Queue Management Considerations {#aqm}
 
-As interactive flows in general, NDTC flows greatly benefit
+As with interactive flows in general, NDTC flows greatly benefit
 from AQM (Active Queue Management) disciplines.
 
 In the case of NDTC, flow queueing, for instance in FQ-CoDel {{!RFC8290}}
@@ -804,7 +804,7 @@ This document has no IANA actions.
 # Dual-variable EWMA Process Implementation {#ewma-implementation}
 
 All variables are initialized at zero. When receiving a new sample
-`(NSEND, NRECV)`, the EWMA process SHOULD be updated as follow:
+`(NSEND, NRECV)`, the EWMA process SHOULD be updated as follows:
 
 ~~~
 COUNT = COUNT + 1
