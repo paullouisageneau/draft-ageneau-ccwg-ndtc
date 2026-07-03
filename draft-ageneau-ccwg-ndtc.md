@@ -205,17 +205,22 @@ in section {{variables-and-parameters}} (rather than the more
 mathematically-oriented names used in NDTC's conference paper [NDTC-LCN]).
 
 ## Illustrating using RTP/RTCP
+
 Although NDTC can be implemented for various real-time video transport
 protocols, this document illustrates the use of NDTC to support
 applications using RTP/RTCP {{!RFC3550}}.
 
 In particular, NDTC operates on a single video stream and it is frame-oriented.
 References to a "frame" in the rest of this document mean a sequence of
-consecutive RTP packets having the same RTP timestamp and ending with a packet
-whose RTP header Mark bit is set.
+consecutive RTP packets having the same SSRC and RTP timestamp and ending
+with a packet whose RTP marker bit is set.
 
 Defining a frame when NDTC is used for non-RTP flows
 is currently outside the scope of this document.
+
+NDTC can be generalized to transports with multiple video streams by running
+an instance of the algorithm for each video stream. This is currently outside
+the scope of this document.
 
 ## Architecture Considerations
 
