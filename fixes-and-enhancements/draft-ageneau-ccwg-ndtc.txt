@@ -317,7 +317,7 @@ Table of Contents
    video bitrate.
 
    If the frame consists of a single packet, if LENGTH is strictly less
-   than MIN_TARGET, or if the frame suffered packet loss in the sense of
+   than MIN_LENGTH, or if the frame suffered packet loss in the sense of
    Section 5.3, the agent does not run FDACE.  Instead, it retains the
    TARGET and SLOPE values from the most recent frame for which FDACE
    ran and immediately jumps to the AIMD congestion control described in
@@ -677,52 +677,57 @@ Table of Contents
 
    The following table summarizes parameters used by the algorithm:
 
-   +=============+===================+=========+======================+
-   | Parameter   | Description       | Unit    | Recommended          |
-   +=============+===================+=========+======================+
-   | MIN_TARGET  | minimum target    | bytes   | 2000                 |
-   |             | frame size        |         |                      |
-   +-------------+-------------------+---------+----------------------+
-   | MAX_TARGET  | maximum target    | bytes   | -                    |
-   |             | frame size        |         |                      |
-   +-------------+-------------------+---------+----------------------+
-   | INIT_TARGET | initial target    | bytes   | <= MAX_TARGET/2      |
-   |             | frame size        |         |                      |
-   +-------------+-------------------+---------+----------------------+
-   | TRECV       | target receive    | seconds | 0.6 * TFRAME         |
-   |             | duration          |         |                      |
-   +-------------+-------------------+---------+----------------------+
-   | TSEND       | target send       | seconds | 0.5 * TRECV          |
-   |             | duration          |         |                      |
-   +-------------+-------------------+---------+----------------------+
-   | ITERATIONS  | extrapolation     | -       | 3                    |
-   |             | iterations        |         |                      |
-   +-------------+-------------------+---------+----------------------+
-   | ALPHA       | congestion        | bytes   | 40                   |
-   |             | additive increase |         |                      |
-   +-------------+-------------------+---------+----------------------+
-   | EALPHA      | congestion        | bytes   | 400                  |
-   |             | additive increase |         |                      |
-   |             | for ECN           |         |                      |
-   +-------------+-------------------+---------+----------------------+
-   | BETA        | congestion        | -       | 0.7                  |
-   |             | multiplicative    |         |                      |
-   |             | decrease          |         |                      |
-   +-------------+-------------------+---------+----------------------+
-   | DELTA       | send dithering    | seconds | 0.5 * TSEND          |
-   |             | amplitude         |         |                      |
-   +-------------+-------------------+---------+----------------------+
-   | LAMBDA      | regression EWMA   | -       | 0.04                 |
-   |             | weight            |         |                      |
-   +-------------+-------------------+---------+----------------------+
-   | KMARGIN     | estimation margin | -       | 0.25                 |
-   |             | constant          |         |                      |
-   +-------------+-------------------+---------+----------------------+
-   | TFRAME      | video frame       | seconds | application-specific |
-   |             | period            |         |                      |
-   +-------------+-------------------+---------+----------------------+
+    +=============+==================+=========+======================+
+    | Parameter   | Description      | Unit    | Recommended          |
+    +=============+==================+=========+======================+
+    | MIN_TARGET  | minimum target   | bytes   | 2000                 |
+    |             | frame size       |         |                      |
+    +-------------+------------------+---------+----------------------+
+    | MAX_TARGET  | maximum target   | bytes   | -                    |
+    |             | frame size       |         |                      |
+    +-------------+------------------+---------+----------------------+
+    | INIT_TARGET | initial target   | bytes   | <= MAX_TARGET/2      |
+    |             | frame size       |         |                      |
+    +-------------+------------------+---------+----------------------+
+    | MIN_LENGTH  | minimum frame    | bytes   | MIN_TARGET/2         |
+    |             | length to run    |         |                      |
+    |             | FDACE            |         |                      |
+    +-------------+------------------+---------+----------------------+
+    | TRECV       | target receive   | seconds | 0.6 * TFRAME         |
+    |             | duration         |         |                      |
+    +-------------+------------------+---------+----------------------+
+    | TSEND       | target send      | seconds | 0.5 * TRECV          |
+    |             | duration         |         |                      |
+    +-------------+------------------+---------+----------------------+
+    | ITERATIONS  | extrapolation    | -       | 3                    |
+    |             | iterations       |         |                      |
+    +-------------+------------------+---------+----------------------+
+    | ALPHA       | congestion       | bytes   | 40                   |
+    |             | additive         |         |                      |
+    |             | increase         |         |                      |
+    +-------------+------------------+---------+----------------------+
+    | EALPHA      | congestion       | bytes   | 400                  |
+    |             | additive         |         |                      |
+    |             | increase for ECN |         |                      |
+    +-------------+------------------+---------+----------------------+
+    | BETA        | congestion       | -       | 0.7                  |
+    |             | multiplicative   |         |                      |
+    |             | decrease         |         |                      |
+    +-------------+------------------+---------+----------------------+
+    | DELTA       | send dithering   | seconds | 0.5 * TSEND          |
+    |             | amplitude        |         |                      |
+    +-------------+------------------+---------+----------------------+
+    | LAMBDA      | regression EWMA  | -       | 0.04                 |
+    |             | weight           |         |                      |
+    +-------------+------------------+---------+----------------------+
+    | KMARGIN     | estimation       | -       | 0.25                 |
+    |             | margin constant  |         |                      |
+    +-------------+------------------+---------+----------------------+
+    | TFRAME      | video frame      | seconds | application-specific |
+    |             | period           |         |                      |
+    +-------------+------------------+---------+----------------------+
 
-                                 Table 1
+                                  Table 1
 
    The following table summarizes variables used by the algorithm:
 
@@ -802,8 +807,11 @@ Table of Contents
    can't know for sure which payload to exclude at reception.
    Therefore, in the context of FDACE, the agent SHOULD calculate LENGTH
    as the sum of all payloads of the frame minus the average size of the
-   first and last one.  If the frame consists of a single packet, LENGTH
-   is the size of the packet.
+   first and last one.  It means that if the frame consists in two
+   packets, LENGTH is half the sum of the two payloads, i.e. the average
+   packet size.  This is why MIN_LENGTH should be set to MIN_TARGET/2.
+   If the frame consists of a single packet, LENGTH is the size of the
+   packet.
 
    Note that if the frame is packetized into packets of similar sizes as
    recommended, which packet to exclude does not matter since the

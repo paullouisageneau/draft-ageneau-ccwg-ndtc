@@ -1494,7 +1494,7 @@ according to <a href="#framesize" class="auto internal xref">Section 5.2</a>.
 Therefore <code>AVAILABLE</code> will actually refer to application-layer
 capacity expressed in terms of video bitrate.<a href="#section-4.3-2" class="pilcrow">¶</a></p>
 <p id="section-4.3-3">If the frame consists of a single packet, if <code>LENGTH</code> is strictly less than
-<code>MIN_TARGET</code>, or if the frame suffered packet loss in the sense of <a href="#loss" class="auto internal xref">Section 5.3</a>,
+<code>MIN_LENGTH</code>, or if the frame suffered packet loss in the sense of <a href="#loss" class="auto internal xref">Section 5.3</a>,
 the agent does not run FDACE.
 Instead, it retains the <code>TARGET</code> and <code>SLOPE</code> values from the most recent frame
 for which FDACE ran and immediately jumps to the AIMD congestion control
@@ -1903,6 +1903,16 @@ of the new frame.<a href="#section-4.7-17" class="pilcrow">¶</a></p>
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">
+                <code>MIN_LENGTH</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">minimum frame length to run FDACE</td>
+              <td class="text-left" rowspan="1" colspan="1">bytes</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <code>MIN_TARGET/2</code>
+</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
                 <code>TRECV</code>
 </td>
               <td class="text-left" rowspan="1" colspan="1">target receive duration</td>
@@ -2180,6 +2190,9 @@ When running FDACE, the agent does not know how the path exactly handles packets
 so it can't know for sure which payload to exclude at reception.
 Therefore, in the context of FDACE, the agent <span class="bcp14">SHOULD</span> calculate <code>LENGTH</code> as the sum
 of all payloads of the frame minus the average size of the first and last one.
+It means that if the frame consists in two packets, <code>LENGTH</code> is half the sum of
+the two payloads, i.e. the average packet size. This is why <code>MIN_LENGTH</code> should
+be set to <code>MIN_TARGET/2</code>.
 If the frame consists of a single packet, <code>LENGTH</code> is the size of the packet.<a href="#section-5.2-3" class="pilcrow">¶</a></p>
 <p id="section-5.2-4">Note that if the frame is packetized into packets of similar sizes as
 recommended, which packet to exclude does not matter since the payload
