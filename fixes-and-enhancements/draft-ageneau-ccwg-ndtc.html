@@ -18,24 +18,25 @@ The algorithm dynamically adjusts frame sizes and transmission
 times to ensure timely delivery, while also responding to
 conventional congestion signals. 
     " name="description">
-<meta content="xml2rfc 3.31.0" name="generator">
+<meta content="xml2rfc 3.34.0" name="generator">
 <meta content="rate adaptation" name="keyword">
 <meta content="real-time" name="keyword">
 <meta content="low-latency video" name="keyword">
 <meta content="draft-ageneau-ccwg-ndtc-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.31.0
-    Python 3.12.12
-    ConfigArgParse 1.7
+  xml2rfc 3.34.0
+    Python 3.14.5
+    ConfigArgParse 1.7.5
     google-i18n-address 3.1.1
     intervaltree 3.2.1
     Jinja2 3.1.6
-    lxml 6.0.2
-    platformdirs 4.5.1
+    lxml 6.1.1
+    natsort 8.4.0
+    platformdirs 4.10.0
     pycountry 24.6.1
     PyYAML 6.0.3
-    requests 2.32.5
-    wcwidth 0.3.0
+    requests 2.33.1
+    wcwidth 0.8.2
 -->
 <link href="draft-ageneau-ccwg-ndtc.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
@@ -302,16 +303,19 @@ h1, h2, h3, h4, h5, h6 {
   font-size-adjust: 0.5;
   color: var(--title-color);
 }
-h1#title {
-  font-size: 32px;
-  line-height: 40px;
-  clear: both;
-}
-h1#title, h1#rfcnum {
-  margin: 1.5em 0 0.2em;
-}
-h1#rfcnum + h1#title {
-  margin: 0.2em 0;
+h1 {
+  &#title {
+    font-size: 32px;
+    line-height: 40px;
+    clear: both;
+    margin: 1.5em 0 0.2em;
+  }
+  &#rfcnum {
+    margin: 1.5em 0 0.2em;
+    & + h1#title {
+      margin: 0.2em 0;
+    }
+  }
 }
 
 h1, h2, h3 {
@@ -331,10 +335,10 @@ h4, h5, h6 {
 #abstract+p {
   font-size: 18px;
   line-height: 24px;
-}
-#abstract+p code, #abstract+p samp, #abstract+p tt {
-  font-size: 16px;
-  line-height: 0;
+  & code, & samp, & tt {
+    font-size: 16px;
+    line-height: 0;
+  }
 }
 
 p {
@@ -345,59 +349,59 @@ p {
 div {
   margin: 0;
 }
-.alignRight.art-text {
-  background-color: var(--highlight-color);
-  border: 1px solid var(--line-color);
-  border-radius: 3px;
-  padding: 0.5em 1em 0;
-  margin-bottom: 0.5em;
-}
-.alignRight.art-text pre {
-  padding: 0;
-  width: auto;
-}
 .alignRight {
   margin: 1em 0;
-}
-.alignRight > *:first-child {
-  border: none;
-  margin: 0;
-  float: right;
-  clear: both;
-}
-.alignRight > *:nth-child(2) {
-  clear: both;
-  display: block;
-  border: none;
+  &.art-text {
+    background-color: var(--highlight-color);
+    border: 1px solid var(--line-color);
+    border-radius: 3px;
+    padding: 0.5em 1em 0;
+    margin-bottom: 0.5em;
+    & pre {
+      padding: 0;
+      width: auto;
+    }
+  }
+  & > *:first-child {
+    border: none;
+    margin: 0;
+    float: right;
+    clear: both;
+  }
+  & > *:nth-child(2) {
+    clear: both;
+    display: block;
+    border: none;
+  }
 }
 svg {
   display: block;
-}
-/* font-family isn't space-separated, but =~ will have to do */
-svg[font-family~="monospace" i], svg [font-family~="monospace" i] {
-  font-family: var(--font-mono);
-}
-.alignCenter.art-text {
-  background-color: var(--highlight-color);
-  border: 1px solid var(--line-color);
-  border-radius: 3px;
-  padding: 0.5em 1em 0;
-  margin-bottom: 0.5em;
-}
-.alignCenter.art-text pre {
-  padding: 0;
-  width: auto;
+  /* font-family isn't space-separated, but =~ will have to do */
+  &[font-family~="monospace" i], & [font-family~="monospace" i] {
+    font-family: var(--font-mono);
+  }
 }
 .alignCenter {
   margin: 1em 0;
-}
-.alignCenter > *:first-child {
-  border: none;
-  /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
-     support flexbox yet.
-  */
-  display: table;
-  margin: 0 auto;
+  &.art-text {
+    background-color: var(--highlight-color);
+    border: 1px solid var(--line-color);
+    border-radius: 3px;
+    padding: 0.5em 1em 0;
+    margin-bottom: 0.5em;
+    & pre {
+      padding: 0;
+      width: auto;
+    }
+  }
+  & > *:first-child {
+    border: none;
+    /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
+       support flexbox yet.
+    */
+    display: table;
+    margin: 0 auto;
+  }
 }
 
 /* lists */
@@ -435,26 +439,25 @@ dl {
     --indent: 5ch;
     & > dt {
       min-width: calc(var(--indent) - 2ch);
+      float: none;
     }
-  }
-  &.olPercent > dt {
-    float: none;
   }
 
   dl > dd > & {
     margin-top: 0.5em;
     margin-bottom: 0;
   }
-}
-dl:not(.dlNewline) > dt {
-  float: left;
-  margin-right: 2ch;
-  min-width: 8ch;
-}
-dl > dd {
-  margin-bottom: .8em;
-  margin-left: var(--indent) !important; /* stupid element overrides */
-  min-height: 2ex;
+
+  &:not(.dlNewline) > dt {
+    float: left;
+    margin-right: 2ch;
+    min-width: 8ch;
+  }
+  & > dd {
+    margin-bottom: .8em;
+    margin-left: var(--indent) !important; /* stupid element overrides */
+    min-height: 2ex;
+  }
 }
 :is(dl.compact, .dlCompact) > dd {
   margin-bottom: 0;
@@ -470,20 +473,22 @@ dl > dd {
 }
 
 /* links */
-a, a[href].selfRef:hover {
+a {
   text-decoration: none;
+  &[href] {
+    color: var(--link-color);
+    &:hover { text-decoration: underline; }
+    &.selfRef {
+      color: var(--text-color);
+      &:hover {
+        text-decoration: none;
+        background-color: var(--highlight-color);
+      }
+    }
+  }
 }
-a[href] {
-  color: var(--link-color);
-}
-a[href].selfRef, .iref + a[href].internal {
+.iref + a[href].internal {
   color: var(--text-color);
-}
-a[href]:hover {
-  text-decoration: underline;
-}
-a[href].selfRef:hover {
-  background-color: var(--highlight-color);
 }
 a.xref:is(.cite, .auto), :is(#status-of-memo, #copyright) a {
   white-space: nowrap;
@@ -519,9 +524,9 @@ img {
 figure {
   margin: 0.5em 0;
   padding: 0;
-}
-figure blockquote {
-  margin: 0.8em 0.4em 0.4em;
+  & blockquote {
+    margin: 0.8em 0.4em 0.4em;
+  }
 }
 figcaption, caption {
   font-style: italic;
@@ -531,17 +536,19 @@ figcaption, caption {
 }
 @media screen {
   /* Auto-collapse boilerplate. */
-  :is(#status-of-memo, #copyright) p {
-    margin: -2px 0;
-    max-height: 0;
-    transition: max-height 2s ease, margin 0.5s ease 0.5s;
-    overflow: hidden;
-  }
-  :is(#status-of-memo, #copyright):hover p,
-  :is(#status-of-memo, #copyright) h2:target ~ p {
-    margin: 0.5em 0;
-    max-height: 500px;
-    overflow: auto;
+  :is(#status-of-memo, #copyright) {
+    & p {
+      margin: -2px 0;
+      max-height: 0;
+      transition: max-height 2s ease, margin 0.5s ease 0.5s;
+      overflow: hidden;
+    }
+    &:hover p,
+    & h2:target ~ p {
+      margin: 0.5em 0;
+      max-height: 500px;
+      overflow: auto;
+    }
   }
   pre, svg {
     display: inline-block;
@@ -591,25 +598,17 @@ table {
   max-width: 100%;
   margin: 0 0 1em;
   border-collapse: collapse;
-}
-table.right {
-  margin-left: auto;
-}
-table.center {
-  margin-left: auto;
-  margin-right: auto;
-}
-table.left {
-  margin-right: auto;
-}
-table .text-left {
-  text-align: left;
-}
-table .text-center {
-  text-align: center;
-}
-table .text-right {
-  text-align: right;
+  &.right { margin-left: auto; }
+  &.center { margin-left: auto; margin-right: auto; }
+  &.left { margin-right: auto; }
+  & .text-left { text-align: left; }
+  & .text-center { text-align: center; }
+  & .text-right { text-align: right; }
+  & caption {
+    margin: 0;
+    padding: 3px 0 3px 1em;
+  }
+  & p { margin: 0; }
 }
 
 thead, tbody {
@@ -629,13 +628,6 @@ th {
 :is(tr:nth-child(2n+1), thead+tbody > tr:nth-child(2n)) > td {
   background-color: var(--highlight-color);
 }
-table caption {
-  margin: 0;
-  padding: 3px 0 3px 1em;
-}
-table p {
-  margin: 0;
-}
 
 /* pilcrow */
 a.pilcrow {
@@ -646,18 +638,16 @@ a.pilcrow {
     color: var(--pilcrow-weak);
     &:hover { text-decoration: none; }
   }
-}
-@media not print {
-  :hover > a.pilcrow, a.pilcrow:focus {
-    opacity: 1;
+  @media not print {
+    :hover > &, &:focus {
+      opacity: 1;
+    }
+    &[href]:hover {
+      color: var(--pilcrow-strong);
+      background-color: transparent;
+    }
   }
-  a.pilcrow[href]:hover {
-    color: var(--pilcrow-strong);
-    background-color: transparent;
-  }
-}
-@media print {
-  a.pilcrow {
+  @media print {
     display: none;
   }
 }
@@ -716,9 +706,9 @@ sub, sup {
   font-size: 0.9em;
   font-style: italic;
   margin-top: 2em;
-}
-.docInfo .prepared {
-  float: right;
+  & .prepared {
+    float: right;
+  }
 }
 
 /* table of contents */
@@ -808,23 +798,27 @@ hr.addr {
   max-width: calc(100% - 16px);
 }
 @media (min-width: 500px) {
-  #authors-addresses > section {
-    column-count: 2;
-    column-gap: 20px;
-  }
-  #authors-addresses > section > h2 {
-    column-span: all;
-  }
-  /* hack for break-inside: avoid-column */
-  #authors-addresses address {
-    display: inline-block;
-    break-inside: avoid-column;
+  #authors-addresses {
+    & > section {
+      column-count: 2;
+      column-gap: 20px;
+    }
+    & > section > h2 {
+      column-span: all;
+    }
+    /* hack for break-inside: avoid-column */
+    & address {
+      display: inline-block;
+      break-inside: avoid-column;
+    }
   }
 }
 
 /* Comments */
-.rfcEditorRemove p:first-of-type {
-  font-style: italic;
+.rfcEditorRemove {
+  & p:first-of-type {
+    font-style: italic;
+  }
 }
 .cref {
   background-color: rgba(249, 232, 105, 0.3);
@@ -835,19 +829,21 @@ hr.addr {
 }
 
 @media screen {
-  #toc nav {
-    font-family: var(--font-title);
-    font-weight: 360;
-    & > ul { margin-bottom: 2em; }
-    & ul {
-      margin: 0 0 0 4px;
-      & :is(p, li) {
-        margin: 2px 0;
+  #toc {
+    & nav {
+      font-family: var(--font-title);
+      font-weight: 360;
+      & > ul { margin-bottom: 2em; }
+      & ul {
+        margin: 0 0 0 4px;
+        & :is(p, li) {
+          margin: 2px 0;
+        }
       }
     }
-  }
-  #toc a.toplink {
-    float: right;
+    & a.toplink {
+      float: right;
+    }
   }
 }
 @media not screen {
@@ -868,54 +864,54 @@ hr.addr {
     margin: 0;
     border-bottom: 1px solid #ccc;
     opacity: 0.6;
-  }
-  #toc h2 {
-    margin: 0;
-    padding: 2px 0 2px 6px;
-    padding-right: 1em;
-    font-size: 18px;
-    line-height: 24px;
-    min-width: 190px;
-    text-align: right;
-    background-color: #444;
-    color: white;
-    cursor: pointer;
-    &::before { /* css hamburger */
-      float: right;
-      position: relative;
-      width: 1em;
-      height: 1px;
-      left: -164px;
-      margin: 8px 0 0 0;
-      background: white none repeat scroll 0 0;
-      box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
-      content: "";
+    & h2 {
+      margin: 0;
+      padding: 2px 0 2px 6px;
+      padding-right: 1em;
+      font-size: 18px;
+      line-height: 24px;
+      min-width: 190px;
+      text-align: right;
+      background-color: #444;
+      color: white;
+      cursor: pointer;
+      &::before { /* css hamburger */
+        float: right;
+        position: relative;
+        width: 1em;
+        height: 1px;
+        left: -164px;
+        margin: 8px 0 0 0;
+        background: white none repeat scroll 0 0;
+        box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+        content: "";
+      }
     }
-  }
-  #toc nav {
-    display: none;
-    background-color: var(--background-color);
-    padding: 0.5em 1em 1em;
-    overflow: auto;
-    overscroll-behavior: contain;
-    height: calc(100vh - 48px);
-    border-left: 1px solid #ddd;
-  }
-  #toc.active {
-    opacity: 1;
-    & nav { display: block; }
-  }
-  /* Make the collapsed ToC header render white on gray also when it's a link */
-  #toc h2 a,
-  #toc h2 a:is(:link, :focus, :hover),
-  #toc a.toplink,
-  #toc a.toplink:hover {
-    color: white;
-    background-color: #444;
-    text-decoration: none;
-  }
-  #toc a.toplink {
-    margin: 2px 0.5em 0;
+    & nav {
+      display: none;
+      background-color: var(--background-color);
+      padding: 0.5em 1em 1em;
+      overflow: auto;
+      overscroll-behavior: contain;
+      height: calc(100vh - 48px);
+      border-left: 1px solid #ddd;
+    }
+    &.active {
+      opacity: 1;
+      & nav { display: block; }
+    }
+    /* Make the collapsed ToC header render white on gray also when it's a link */
+    & h2 a,
+    & h2 a:is(:link, :focus, :hover),
+    & a.toplink,
+    & a.toplink:hover {
+      color: white;
+      background-color: #444;
+      text-decoration: none;
+    }
+    & a.toplink {
+      margin: 2px 0.5em 0;
+    }
   }
 }
 
@@ -934,26 +930,26 @@ hr.addr {
     margin: 0;
     padding: 0;
     z-index: 1;
-  }
-  #toc h2 {
-    margin: 0;
-    padding: 0.25em 1em 1em 0;
-  }
-  #toc nav {
-    display: block;
-    height: calc(90vh - 84px);
-    bottom: 0;
-    padding: 0.5em 0 2em;
-    overflow: auto;
-    overscroll-behavior: contain;
-    scrollbar-width: thin;
+    & h2 {
+      margin: 0;
+      padding: 0.25em 1em 1em 0;
+    }
+    & nav {
+      display: block;
+      height: calc(90vh - 84px);
+      bottom: 0;
+      padding: 0.5em 0 2em;
+      overflow: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+    }
+    & a.toplink {
+      margin: 8px 0.5em 0;
+    }
   }
   img { /* future proofing */
     max-width: 100%;
     height: auto;
-  }
-  #toc a.toplink {
-    margin: 8px 0.5em 0;
   }
 }
 
@@ -969,12 +965,13 @@ hr.addr {
   #n-copyright-notice {
     border-bottom: none;
   }
-  #toc, #n-introduction {
-    page-break-before: always;
-  }
   #toc {
+    page-break-before: always;
     border-top: none;
     padding-top: 0;
+  }
+  #n-introduction {
+    page-break-before: always;
   }
   figure, pre, .vcard {
     page-break-inside: avoid;
@@ -1036,17 +1033,19 @@ hr.addr {
 }
 
 /* SVG Trick: a prefix match works because only black and white are allowed */
-svg :is([stroke="black"], [stroke^="#000"]) {
-  stroke: var(--text-color);
-}
-svg :is([stroke="white"], [stroke^="#fff"]) {
-  stroke: var(--background-color);
-}
-svg :is([fill="black"], [fill^="#000"], :not([fill])) {
-  fill: var(--text-color);
-}
-svg :is([fill="white"], [fill^="#fff"]) {
-  fill: var(--background-color);
+svg {
+  & :is([stroke="black"], [stroke^="#000"]) {
+    stroke: var(--text-color);
+  }
+  & :is([stroke="white"], [stroke^="#fff"]) {
+    stroke: var(--background-color);
+  }
+  & :is([fill="black"], [fill^="#000"], :not([fill])) {
+    fill: var(--text-color);
+  }
+  & :is([fill="white"], [fill^="#fff"]) {
+    fill: var(--background-color);
+  }
 }
 </style>
 
@@ -1056,11 +1055,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">NDTC</td>
-<td class="right">March 2026</td>
+<td class="right">July 2026</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Ageneau, et al.</td>
-<td class="center">Expires 3 September 2026</td>
+<td class="center">Expires 7 January 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1073,12 +1072,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-ageneau-ccwg-ndtc-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-03-02" class="published">2 March 2026</time>
+<time datetime="2026-07-06" class="published">6 July 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2026-09-03">3 September 2026</time></dd>
+<dd class="expires"><time datetime="2027-01-07">7 January 2027</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1143,7 +1142,7 @@ conventional congestion signals.<a href="#section-abstract-1" class="pilcrow">¶
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 3 September 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 7 January 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1300,7 +1299,7 @@ runs the following loop:<a href="#section-1-5" class="pilcrow">¶</a></p>
 <li class="normal" id="section-1-6.1">
           <p id="section-1-6.1.1">Pace each video frame's packets at a rate between 1x and 2x (on average)
 our current estimate of available path capacity, in order to probe the
-network path for additional capacity while minimising burst load on network
+network path for additional capacity while minimizing burst load on network
 bottlenecks.<a href="#section-1-6.1.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-1-6.2">
@@ -1331,7 +1330,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
       </h2>
 <p id="section-3-1">A key requirement for real-time video is ensuring
 each frame arrives on time to be presented. Consequently,
-NDTC focuses on timely frame delivery rather than attempting to maximise throughput.
+NDTC focuses on timely frame delivery rather than attempting to maximize throughput.
 NDTC aims to ensure each frame reception duration is shorter than a frame period,
 providing sufficient headroom to ensure high probability of each frame arriving in time.
 In practice, the control loop of the algorithm stabilizes the frame reception
@@ -1372,7 +1371,7 @@ stabilized around target reception duration <code>TRECV</code>.<a href="#section
 signals like packet loss and ECN.<a href="#section-3-5.5.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
-<p id="section-3-6">To properly probe the path, <code>TSEND</code> <span class="bcp14">MUST</span> be a fraction of <code>TRECV</code>, and to minimise on-path
+<p id="section-3-6">To properly probe the path, <code>TSEND</code> <span class="bcp14">MUST</span> be a fraction of <code>TRECV</code>, and to minimize on-path
 congestion, <code>TRECV</code> <span class="bcp14">MUST</span> be a fraction of <code>TFRAME</code>.
 We RECOMMEND that <code>TRECV = 0.6 * TFRAME</code> and <code>TSEND = 0.5 * TRECV</code>.
 (For example, sending at 30fps would result in <code>TFRAME = 33ms</code>, <code>TRECV = 20ms</code>
@@ -1405,10 +1404,13 @@ protocols, this document illustrates the use of NDTC to support
 applications using RTP/RTCP <span>[<a href="#RFC3550" class="cite xref">RFC3550</a>]</span>.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
 <p id="section-4.1-2">In particular, NDTC operates on a single video stream and it is frame-oriented.
 References to a "frame" in the rest of this document mean a sequence of
-consecutive RTP packets having the same RTP timestamp and ending with a packet
-whose RTP header Mark bit is set.<a href="#section-4.1-2" class="pilcrow">¶</a></p>
+consecutive RTP packets having the same SSRC and RTP timestamp and ending
+with a packet whose RTP marker bit is set.<a href="#section-4.1-2" class="pilcrow">¶</a></p>
 <p id="section-4.1-3">Defining a frame when NDTC is used for non-RTP flows
 is currently outside the scope of this document.<a href="#section-4.1-3" class="pilcrow">¶</a></p>
+<p id="section-4.1-4">NDTC can be generalized to transports with multiple video streams by running
+an instance of the algorithm for each video stream. This is currently outside
+the scope of this document.<a href="#section-4.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="architecture-considerations">
@@ -1416,7 +1418,7 @@ is currently outside the scope of this document.<a href="#section-4.1-3" class="
         <h3 id="name-architecture-considerations">
 <a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-architecture-considerations" class="section-name selfRef">Architecture Considerations</a>
         </h3>
-<p id="section-4.2-1">NDTC can be implemented both sender-side or receiver-side depending on the
+<p id="section-4.2-1">NDTC can be implemented either sender-side or receiver-side depending on the
 application's needs.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
 <p id="section-4.2-2">In the following discussion, the "agent" refers to the entity running the NDTC algorithm.
 A core requirement to execute FDACE is that, for every frame, the agent
@@ -1751,8 +1753,14 @@ does not get stuck producing 1-packet frames, which do not allow the agent
 to run FDACE and update <code>TARGET</code>.
 The <span class="bcp14">RECOMMENDED</span> value for <code>MIN_TARGET</code> is 2000 bytes as a frame of such a size
 will be packetized into 2 packets of significant size given a typical path MTU.<a href="#section-4.6-5" class="pilcrow">¶</a></p>
-<p id="section-4.6-6">The sender <span class="bcp14">SHOULD</span> set the encoder target frame size to <code>TARGET</code> as soon as possible
-(i.e. the encoder target bitrate is set to <code>TARGET/TFRAME</code>).<a href="#section-4.6-6" class="pilcrow">¶</a></p>
+<p id="section-4.6-6">Note that the flow becomes unresponsive to congestion when the target frame size
+is at <code>MIN_TARGET</code> (at 30fps, 2000 bytes correspond to 480Kbps), therefore,
+care should be taken not to set this value too high as it could harm other flows.
+This is particularly a concern in an L4S context, where the consideration is
+similar to the fractional window tradeoff for a Prague congestion controller
+<span>[<a href="#draft-briscoe-iccrg-prague-congestion-control" class="cite xref">draft-briscoe-iccrg-prague-congestion-control</a>]</span>.<a href="#section-4.6-6" class="pilcrow">¶</a></p>
+<p id="section-4.6-7">The sender <span class="bcp14">SHOULD</span> set the encoder target frame size to <code>TARGET</code> as soon as possible
+(i.e. the encoder target bitrate is set to <code>TARGET/TFRAME</code>).<a href="#section-4.6-7" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="pacer">
@@ -1784,12 +1792,12 @@ PACE = SLOPE * (TSEND + rand() * DELTA) + (1 - SLOPE) * TRECV
 <p id="section-4.7-6">Adapting the duration according to <code>SLOPE</code> reduces how aggressively NDTC paces
 packets as the flow gets closer to filling the entire bottleneck.
 It makes the feedback loop run closer to the desired operating point and
-minimises transient queueing for each frame.
+minimizes transient queueing for each frame.
 It also helps FDACE by probing locally in non-linear scenarios and
 stabilizes competition with other NDTC flows.<a href="#section-4.7-6" class="pilcrow">¶</a></p>
 <p id="section-4.7-7">The sender then scales the pacing duration proportionally to <code>LENGTH/TARGET</code>,
 where the frame size <code>LENGTH</code> is calculated according to <a href="#framesize" class="auto internal xref">Section 5.2</a>.
-This helps sustaining the send rate when the encoder produces frames that don't
+This helps sustain the send rate when the encoder produces frames that don't
 match the target frame size. For instance, the encoder may chronically
 underproduce because the video is not dynamic or complex enough, and
 it may temporarily overproduce on scene change.
@@ -2215,7 +2223,7 @@ capacity-seeking flows.<a href="#section-6-2" class="pilcrow">¶</a></p>
       <h2 id="name-active-queue-management-con">
 <a href="#section-7" class="section-number selfRef">7. </a><a href="#name-active-queue-management-con" class="section-name selfRef">Active Queue Management Considerations</a>
       </h2>
-<p id="section-7-1">As interactive flows in general, NDTC flows greatly benefit
+<p id="section-7-1">As with interactive flows in general, NDTC flows greatly benefit
 from AQM (Active Queue Management) disciplines.<a href="#section-7-1" class="pilcrow">¶</a></p>
 <p id="section-7-2">In the case of NDTC, flow queueing, for instance in FQ-CoDel <span>[<a href="#RFC8290" class="cite xref">RFC8290</a>]</span>
 or Cake <span>[<a href="#CAKE" class="cite xref">CAKE</a>]</span>, particularly helps FDACE as cross-traffic packets are
@@ -2242,6 +2250,10 @@ injection and modification using SRTP.<a href="#section-8-1" class="pilcrow">¶<
 packets in order to manipulate timings and make NDTC incorrectly estimate
 available path capacity. However, the combined congestion control should prevent
 NDTC from causing network congestion in that scenario.<a href="#section-8-2" class="pilcrow">¶</a></p>
+<p id="section-8-3">When using L4S, this draft inherits the security considerations discussed in
+<span>[<a href="#RFC9330" class="cite xref">RFC9330</a>]</span>. In particular, network operators might choose to restrict or police
+L4S flows. Additionally, <code>MIN_TARGET</code> should be set low enough to ensure NDTC
+flows are responsive enough not to cause a queue to build up.<a href="#section-8-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="iana-considerations">
@@ -2323,7 +2335,7 @@ NDTC from causing network congestion in that scenario.<a href="#section-8-2" cla
 <a href="#appendix-A" class="section-number selfRef">Appendix A. </a><a href="#name-dual-variable-ewma-process-" class="section-name selfRef">Dual-variable EWMA Process Implementation</a>
       </h2>
 <p id="appendix-A-1">All variables are initialized at zero. When receiving a new sample
-<code>(NSEND, NRECV)</code>, the EWMA process <span class="bcp14">SHOULD</span> be updated as follow:<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+<code>(NSEND, NRECV)</code>, the EWMA process <span class="bcp14">SHOULD</span> be updated as follows:<a href="#appendix-A-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-A-2">
 <pre>
 COUNT = COUNT + 1
