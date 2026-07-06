@@ -126,7 +126,7 @@ runs the following loop:
 
 - Pace each video frame's packets at a rate between 1x and 2x (on average)
 our current estimate of available path capacity, in order to probe the
-network path for additional capacity while minimising burst load on network
+network path for additional capacity while minimizing burst load on network
 bottlenecks.
 
 - Set the target frame size of the video encoder to a fraction of the
@@ -144,7 +144,7 @@ upper bound on the next encoded video frame's size.
 
 A key requirement for real-time video is ensuring
 each frame arrives on time to be presented. Consequently,
-NDTC focuses on timely frame delivery rather than attempting to maximise throughput.
+NDTC focuses on timely frame delivery rather than attempting to maximize throughput.
 NDTC aims to ensure each frame reception duration is shorter than a frame period,
 providing sufficient headroom to ensure high probability of each frame arriving in time.
 In practice, the control loop of the algorithm stabilizes the frame reception
@@ -182,7 +182,7 @@ stabilized around target reception duration `TRECV`.
 - Additionally, `TARGET` is capped by a combined AIMD process reacting to congestion
 signals like packet loss and ECN.
 
-To properly probe the path, `TSEND` MUST be a fraction of `TRECV`, and to minimise on-path
+To properly probe the path, `TSEND` MUST be a fraction of `TRECV`, and to minimize on-path
 congestion, `TRECV` MUST be a fraction of `TFRAME`.
 We RECOMMEND that `TRECV = 0.6 * TFRAME` and `TSEND = 0.5 * TRECV`.
 (For example, sending at 30fps would result in `TFRAME = 33ms`, `TRECV = 20ms`
@@ -205,21 +205,26 @@ in section {{variables-and-parameters}} (rather than the more
 mathematically-oriented names used in NDTC's conference paper [NDTC-LCN]).
 
 ## Illustrating using RTP/RTCP
+
 Although NDTC can be implemented for various real-time video transport
 protocols, this document illustrates the use of NDTC to support
 applications using RTP/RTCP {{!RFC3550}}.
 
 In particular, NDTC operates on a single video stream and it is frame-oriented.
 References to a "frame" in the rest of this document mean a sequence of
-consecutive RTP packets having the same RTP timestamp and ending with a packet
-whose RTP header Mark bit is set.
+consecutive RTP packets having the same SSRC and RTP timestamp and ending
+with a packet whose RTP marker bit is set.
 
 Defining a frame when NDTC is used for non-RTP flows
 is currently outside the scope of this document.
 
+NDTC can be generalized to transports with multiple video streams by running
+an instance of the algorithm for each video stream. This is currently outside
+the scope of this document.
+
 ## Architecture Considerations
 
-NDTC can be implemented both sender-side or receiver-side depending on the
+NDTC can be implemented either sender-side or receiver-side depending on the
 application's needs.
 
 In the following discussion, the "agent" refers to the entity running the NDTC algorithm.
@@ -288,7 +293,7 @@ Therefore `AVAILABLE` will actually refer to application-layer
 capacity expressed in terms of video bitrate.
 
 If the frame consists of a single packet, if `LENGTH` is strictly less than
-`MIN_TARGET`, or if the frame suffered packet loss in the sense of {{loss}},
+`MIN_LENGTH`, or if the frame suffered packet loss in the sense of {{loss}},
 the agent does not run FDACE.
 Instead, it retains the `TARGET` and `SLOPE` values from the most recent frame
 for which FDACE ran and immediately jumps to the AIMD congestion control
@@ -547,6 +552,13 @@ to run FDACE and update `TARGET`.
 The RECOMMENDED value for `MIN_TARGET` is 2000 bytes as a frame of such a size
 will be packetized into 2 packets of significant size given a typical path MTU.
 
+Note that the flow becomes unresponsive to congestion when the target frame size
+is at `MIN_TARGET` (at 30fps, 2000 bytes correspond to 480Kbps), therefore,
+care should be taken not to set this value too high as it could harm other flows.
+This is particularly a concern in an L4S context, where the consideration is
+similar to the fractional window tradeoff for a Prague congestion controller
+[draft-briscoe-iccrg-prague-congestion-control].
+
 The sender SHOULD set the encoder target frame size to `TARGET` as soon as possible
 (i.e. the encoder target bitrate is set to `TARGET/TFRAME`).
 
@@ -579,13 +591,13 @@ PACE = SLOPE * (TSEND + rand() * DELTA) + (1 - SLOPE) * TRECV
 Adapting the duration according to `SLOPE` reduces how aggressively NDTC paces
 packets as the flow gets closer to filling the entire bottleneck.
 It makes the feedback loop run closer to the desired operating point and
-minimises transient queueing for each frame.
+minimizes transient queueing for each frame.
 It also helps FDACE by probing locally in non-linear scenarios and
 stabilizes competition with other NDTC flows.
 
 The sender then scales the pacing duration proportionally to `LENGTH/TARGET`,
 where the frame size `LENGTH` is calculated according to {{framesize}}.
-This helps sustaining the send rate when the encoder produces frames that don't
+This helps sustain the send rate when the encoder produces frames that don't
 match the target frame size. For instance, the encoder may chronically
 underproduce because the video is not dynamic or complex enough, and
 it may temporarily overproduce on scene change.
@@ -655,6 +667,7 @@ The following table summarizes parameters used by the algorithm:
 | `MIN_TARGET` | minimum target frame size | bytes | 2000 |
 | `MAX_TARGET` | maximum target frame size | bytes | - |
 | `INIT_TARGET` | initial target frame size | bytes | `<= MAX_TARGET/2` |
+| `MIN_LENGTH` | minimum frame length to run FDACE | bytes | `MIN_TARGET/2` |
 | `TRECV` | target receive duration | seconds | `0.6 * TFRAME` |
 | `TSEND` | target send duration | seconds | `0.5 * TRECV` |
 | `ITERATIONS` | extrapolation iterations | - | 3 |
@@ -714,6 +727,9 @@ When running FDACE, the agent does not know how the path exactly handles packets
 so it can't know for sure which payload to exclude at reception.
 Therefore, in the context of FDACE, the agent SHOULD calculate `LENGTH` as the sum
 of all payloads of the frame minus the average size of the first and last one.
+It means that if the frame consists in two packets, `LENGTH` is half the sum of
+the two payloads, i.e. the average packet size. This is why `MIN_LENGTH` should
+be set to `MIN_TARGET/2`.
 If the frame consists of a single packet, `LENGTH` is the size of the packet.
 
 Note that if the frame is packetized into packets of similar sizes as
@@ -746,7 +762,7 @@ capacity-seeking flows.
 
 # Active Queue Management Considerations {#aqm}
 
-As interactive flows in general, NDTC flows greatly benefit
+As with interactive flows in general, NDTC flows greatly benefit
 from AQM (Active Queue Management) disciplines.
 
 In the case of NDTC, flow queueing, for instance in FQ-CoDel {{!RFC8290}}
@@ -773,6 +789,11 @@ packets in order to manipulate timings and make NDTC incorrectly estimate
 available path capacity. However, the combined congestion control should prevent
 NDTC from causing network congestion in that scenario.
 
+When using L4S, this draft inherits the security considerations discussed in
+[RFC9330]. In particular, network operators might choose to restrict or police
+L4S flows. Additionally, `MIN_TARGET` should be set low enough to ensure NDTC
+flows are responsive enough not to cause a queue to build up.
+
 # IANA Considerations
 
 This document has no IANA actions.
@@ -783,7 +804,7 @@ This document has no IANA actions.
 # Dual-variable EWMA Process Implementation {#ewma-implementation}
 
 All variables are initialized at zero. When receiving a new sample
-`(NSEND, NRECV)`, the EWMA process SHOULD be updated as follow:
+`(NSEND, NRECV)`, the EWMA process SHOULD be updated as follows:
 
 ~~~
 COUNT = COUNT + 1
