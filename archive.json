@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-07-05T02:36:28.225958+00:00",
+  "timestamp": "2026-07-07T02:37:04.980310+00:00",
   "repo": "paullouisageneau/draft-ageneau-ccwg-ndtc",
   "labels": [
     {
@@ -75,6 +75,34 @@
       "mergedBy": "paullouisageneau",
       "mergeCommit": {
         "oid": "9bccb2b5eec7050237907225969af5de1879d97b"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 2,
+      "id": "PR_kwDOO-Ayy87uXvgG",
+      "title": "Second round of fixes and enhancements",
+      "url": "https://github.com/paullouisageneau/draft-ageneau-ccwg-ndtc/pull/2",
+      "state": "MERGED",
+      "author": "paullouisageneau",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "This PR bundles a few fixes and enhancements:\r\n- Fix the incorrect statement about not running FDACE if `LENGTH` is strictly less that `MIN_TARGET`. The agent should actually compare `LENGTH` to `MIN_LENGTH = MIN_TARGET/2`.\r\n- Add `MIN_TARGET` discussion and L4S security considerations\r\n- Mention transports with multiple video streams\r\n- Fix grammar and normalize spelling",
+      "createdAt": "2026-07-06T13:35:29Z",
+      "updatedAt": "2026-07-06T13:36:23Z",
+      "baseRepository": "paullouisageneau/draft-ageneau-ccwg-ndtc",
+      "baseRefName": "main",
+      "baseRefOid": "9bccb2b5eec7050237907225969af5de1879d97b",
+      "headRepository": "paullouisageneau/draft-ageneau-ccwg-ndtc",
+      "headRefName": "fixes-and-enhancements",
+      "headRefOid": "f172132c53edcd6dddb1e47d611aed3093ebc51a",
+      "closedAt": "2026-07-06T13:36:23Z",
+      "mergedAt": "2026-07-06T13:36:23Z",
+      "mergedBy": "paullouisageneau",
+      "mergeCommit": {
+        "oid": "d0799cf709710e34cc53ad54ddcee0c9f5fcebeb"
       },
       "comments": [],
       "reviews": []
