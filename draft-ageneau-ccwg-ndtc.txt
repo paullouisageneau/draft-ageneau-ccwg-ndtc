@@ -3,10 +3,12 @@
 
 
 Congestion Control Working Group                              P. Ageneau
-Internet-Draft                                               G. Armitage
-Intended status: Informational                                 S. Danahy
-Expires: 7 January 2027                                          Netflix
-                                                             6 July 2026
+Internet-Draft                                                   Netflix
+Intended status: Informational                               G. Armitage
+Expires: 1 May 2027                                          Independent
+                                                               S. Danahy
+                                                                 Netflix
+                                                         28 October 2026
 
 
                      Network Delivery Time Control
@@ -55,7 +57,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 7 January 2027.
+   This Internet-Draft will expire on 1 May 2027.
 
 Copyright Notice
 
@@ -1041,8 +1043,8 @@ Authors' Addresses
 
 
    Grenville Armitage
-   Netflix
-   Email: garmitage@netflix.com
+   Independent
+   Email: gja.ietf@gmail.com
 
 
    Scott Danahy
