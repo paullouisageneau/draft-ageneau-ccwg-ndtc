@@ -31,8 +31,8 @@ author:
 
  -
     fullname: "Grenville Armitage"
-    organization: Netflix
-    email: "garmitage@netflix.com"
+    organization: Independent
+    email: "gja.ietf@gmail.com"
 
  -
     fullname: "Scott Danahy"
